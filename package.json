@@ -47,6 +47,8 @@
         "mssql": "^4.1.0",
         "mysql": "^2.15.0",
         "puppeteer": "^1.12.2",
+        "superagent": "^4.1.0",
+        "superagent-charset": "^1.2.0",
         "swig": "^1.4.2"
     },
     "keywords": [
