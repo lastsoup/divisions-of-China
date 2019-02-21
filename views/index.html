@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="cn">
+<head>
+    <meta charset="UTF-8">
+    <title>{{title}}</title>
+</head>
+<body>
+    <div id="firstVue">路由测试页面
+        {{myData}}
+        <my-component></my-component>
+    </div>
+    {% set extend= ""%}
+    {% if isProduction %}
+    {% set extend= ".min"%}
+    {% endif %}
+    <script src='./dist/vendor/js/main{{extend}}.js'></script>
+    <script type="text/javascript" src="/dist/js/commons{{extend}}.js"></script>
+    <script type="text/javascript" src="/dist/js/main{{extend}}.js"></script>
+</body>
+</html>
