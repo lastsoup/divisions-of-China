@@ -1,27 +1,47 @@
 var superagent = require('superagent');
 var cheerio = require('cheerio');
 var charset = require("superagent-charset");
-
 charset(superagent); 
+var fn={};
+/*
+ * 命名简写备注
+ * http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2018/index.html
+ * 省级（省份，Province）          provincetr
+ * 地级（城市，City）              citytr
+ * 县级（区县，Area）              countytr
+ * 乡级（乡镇街道，Street）        towntr
+ * 村级（村委会居委会，Village）    villagetr
+ */
 
-var items = [];
-
-var host = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2018/index.html";
-
-superagent.get(host)
-  .charset('gb2312') //设置字符
-  .end(function (error, res) {
-      if (error) {
-        throw error;
+fn.Province = async function (url,selecte) {
+  return new Promise(( resolve, reject ) => {
+      try{
+        superagent.get(url).buffer(true).charset('gb2312').end(function (err, res) {
+          if (err) {
+            reject(err)
+          }
+          if(res){
+            var items = [];
+            var $ = cheerio.load(res.text);
+            $(selecte).find("a").each(function (idx, el) {
+                var $element = $(el);
+                var href=$element.attr('href');
+                var code=href.replace(".html","");
+                var name =$element.text();
+                items.push({'code':code,"name":name});
+            });
+            // items.push({'code':"71","name":"台湾省"});
+            // items.push({'code':"81","name":"香港特别行政区"});
+            // items.push({'code':"82","name":"澳门特别行政区"});
+            resolve(items);
+          }
+        });
+    
+      }catch(err){
+         reject(err)
       }
-
-      var $ = cheerio.load(res.text);
-      $('.provincetr td a').each(function (idx, element) {
-          var $element = $(element);
-          var title = $element.text();
-          items.push(title);
-      });
-      console.log(items);
   });
+};
 
-  module.exports = superagent;
+
+module.exports = fn;

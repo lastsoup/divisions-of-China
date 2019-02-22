@@ -1,5 +1,5 @@
 {
-    "name": "ananas-plugins",
+    "name": "divisions-of-China",
     "version": "1.0.0",
     "devDependencies": {
         "autoprefixer": "^7.1.6",
@@ -41,6 +41,7 @@
     "dependencies": {
         "cheerio": "^1.0.0-rc.2",
         "koa": "^2.4.1",
+        "koa-bodyparser": "^4.2.1",
         "koa-router": "^7.4.0",
         "koa-static": "^4.0.2",
         "koa-views": "^6.1.4",
@@ -54,5 +55,5 @@
     "keywords": [
         "plugins"
     ],
-    "description": "菠萝工作室插件制作"
+    "description": "行政区域抓取"
 }
