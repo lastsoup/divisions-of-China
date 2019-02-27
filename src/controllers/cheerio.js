@@ -30,9 +30,6 @@ fn.Province = async function (url,selecte) {
                 var name =$element.text();
                 items.push({'code':code,"name":name});
             });
-            // items.push({'code':"71","name":"台湾省"});
-            // items.push({'code':"81","name":"香港特别行政区"});
-            // items.push({'code':"82","name":"澳门特别行政区"});
             resolve(items);
           }
         });

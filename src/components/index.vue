@@ -12,8 +12,10 @@
       <button @click="save">保存数据</button>
       <span style="color:red;">注:最多获取到四级数据（乡级和村级可以数据可通过请求获取）</span>
      <div id="showdetail">
-         <p class="detail">数据获取情况：<span class="total">0</span>/<span class="count">0</span>
-         &nbsp; 获取<span class="remark" style="color:red;"></span>数据完毕！</p>
+         <p class="detail">数据获取情况：地级<span class="ptotal">0</span>/<span class="pcount">0</span>条
+         &nbsp; 
+         <!-- 获取<span class="remark" style="color:red;"></span>数据完毕！ -->
+         县级<span class="ctotal">0</span>/<span class="ccount">0</span>条</p>
      </div>
       <div id="showerror">
      </div>
@@ -21,7 +23,7 @@
 </template>
 <script>
     var json=null;
-    var pcount=0;
+    var pcount=0,ccount=0;
     var ptotal=0,ctotal=0,stotal=0,ttotal=0,vtotal=0;
     export default {
         data () {
@@ -30,12 +32,11 @@
                 api2:"/api/puppeteer",
                 api:"/api/cheerio",
                 host:"http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2018/",
-                selecter:[".provincetr td",".citytr td:last-child","countytr",".towntr td:last-child","villagetr"]
+                selecter:[".provincetr td",".citytr td:last-child",".countytr td:last-child",".towntr td:last-child","villagetr"]
             }
         },
         methods:{
             save:function(){
-
                 json.push({'code':"71","name":"台湾省"});
                 json.push({'code':"81","name":"香港特别行政区"});
                 json.push({'code':"82","name":"澳门特别行政区"});
@@ -46,7 +47,10 @@
             },
             all:function(){
                 var level=$("#level").get(0).selectedIndex;
+                ptotal=0;
                 pcount=0;
+                ctotal=0;
+                ccount=0;
                 switch(level){
                     case 0:
                     {
@@ -81,7 +85,7 @@
                 this.scrape(this.host,this.selecter[0],function(data){
                     json=data;
                     ptotal=data.length;
-                    $("#showdetail .detail .total").text(data.length);
+                    $("#showdetail .detail .ptotal").text(data.length);
                     callback(data);
                 });
             },
@@ -95,11 +99,13 @@
                             pcount=pcount+1;
                             item["children"]=cdata;
                             json[n]=item;
-                            $("#showdetail .detail .count").text(pcount);
-                            $("#showdetail .detail .remark").text(item.name);
+                            ctotal=ctotal+cdata.length;
+                            $("#showdetail .detail .pcount").text(pcount);
+                            $("#showdetail .detail .ctotal").text(ctotal);
+                            //$("#showdetail .detail .remark").text(item.name);
                             callback(cdata,n,item);
                         },function(err){
-                            console.log(n+";"+item.code+";"+item.name+";"+err.responseText);
+                            console.log(err.responseText);
                         });
                     });
                 });
@@ -107,8 +113,16 @@
             Area:function(callback){
                 var dom=this;
                 var selecter=this.selecter;
-                dom.City(function(cdata,n,item){
-                   
+                dom.City(function(cdata,n,citem){
+                     $.each(cdata,function(n,sitem){
+                         var url=dom.host+sitem.code+".html";
+                         dom.scrape(url,selecter[2],function(sdata){
+                              ccount=ccount+1;
+                              $("#showdetail .detail .ccount").text(ccount);
+                         },function(err){
+                            console.log(err.responseText);
+                         });
+                     })
                 });
             }
         }
