@@ -1,4 +1,5 @@
 const Koa = require('koa'),
+    Router = require('koa-router'),
     ServeStatic = require('koa-static'),
     config = require('./webpack.config'),
     webpack = require('webpack'),
@@ -6,10 +7,11 @@ const Koa = require('koa'),
     {output, server, buildDir,isProduction} = require("./webpack.variable"),
     path = require('path'),
     app = new Koa();
+/**加载路由Start 注：无路由默认起始页面inde.html*/
+//post处理
 const bodyparser = require('koa-bodyparser');
 app.use(bodyparser());
-/**加载路由Start 注：无路由默认起始页面inde.html*/
-var Router = require('koa-router');
+//swig模板
 var views = require('koa-views');
 var swig = require('swig');
 app.use(views(path.join(__dirname, './views'),{  extension: 'html',map: { html: 'swig' }}));
@@ -18,14 +20,14 @@ var index = require('./routes/index');
 var api = require('./routes/api');
 // 装载所有子路由
 var rt=new Router();
-app.use(async (ctx, next) => {
-    ctx.state = Object.assign(ctx.state, { isProduction: isProduction });
-    await next();
-});
 rt.use('/', index.routes(),index.allowedMethods());
 rt.use('/api', api.routes(),api.allowedMethods());
 app.use(rt.routes()).use(rt.allowedMethods());
-app.use(ServeStatic("./public"));
+//传递数据
+app.use(async (ctx, next) => {
+  ctx.state = Object.assign(ctx.state, { isProduction: isProduction });
+  await next();
+});
 /**加载路由End*/
 /*错误页处理Start*/
 if(isProduction){
