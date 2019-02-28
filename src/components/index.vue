@@ -51,6 +51,7 @@
                 newjson.push({'code':"82","name":"澳门特别行政区"});
                  console.log(newjson);
                 console.log(JSON.stringify(newjson));
+                alert("打开浏览器控制台复制数据！")
             },
             erro:function(){
                 this.Error();
