@@ -16,7 +16,10 @@ var fn={};
 fn.Province = async function (url,selecte) {
   return new Promise(( resolve, reject ) => {
       try{
-        superagent.get(url).buffer(true).charset('gb2312').end(function (err, res) {
+        superagent.get(url).
+        retry(2).
+        set('Accept-Encoding', 'identity').
+        buffer(true).charset('gb2312').end(function (err, res) {
           if (err) {
             reject(err)
           }
@@ -26,7 +29,8 @@ fn.Province = async function (url,selecte) {
             $(selecte).find("a").each(function (idx, el) {
                 var $element = $(el);
                 var href=$element.attr('href');
-                var code=href.replace(".html","");
+                //var code=href.replace(".html","");
+                var code=href.replace(/(.*\/)*([^.]+).*/ig,"$2");
                 var name =$element.text();
                 items.push({'code':code,"name":name});
             });

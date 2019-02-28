@@ -25,7 +25,7 @@ app.use(async (ctx, next) => {
 rt.use('/', index.routes(),index.allowedMethods());
 rt.use('/api', api.routes(),api.allowedMethods());
 app.use(rt.routes()).use(rt.allowedMethods());
-
+app.use(ServeStatic("./public"));
 /**加载路由End*/
 /*错误页处理Start*/
 if(isProduction){
