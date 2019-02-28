@@ -1,5 +1,6 @@
 <template>
   <div id="divisions">
+      <p>地址：<input id="host" value="http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2018/" /></p>
       选择
       <select id="level">
         <option value ="0">省级</option>
@@ -7,7 +8,6 @@
         <option value="2">县级</option>
         <option value="3">乡级</option>
         <option value="4">村级</option>
-        <option value="5">错误处理</option>
       </select>
       <button @click="all">开始抓取数据</button>
       <button @click="save">保存数据</button>
@@ -24,7 +24,8 @@
          </p>
      </div>
       错误详情：
-      <div id="showerror" style="color:red;font-size: 13px;font-style: italic;">
+      <div id="showerror" style="color:red;font-size: 13px;font-style: italic;border: solid 1px #758697;
+    min-height: 100px;">
      </div>
 </div>
 </template>
@@ -63,6 +64,7 @@
                 var level=$("#level").get(0).selectedIndex;
                 ptotal=pcount=ctotal=ccount=stotal=scount=0;
                 errojson=[];
+                this.host=$("#host").val();
                 $("#showerror").empty();
                 switch(level){
                     case 0:
