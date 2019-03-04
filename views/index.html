@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <title>{{title}}</title>
     <script type="text/javascript" src="https://lastsoup.github.io/themes/nifty/js/jquery-2.2.4.min.js"></script>
+    <script type="text/javascript" src="/public/jquery.cityselect.js"></script>
 </head>
 <body>
     <div id="firstVue">
         <my-component></my-component>
+        <my-area></my-area>
     </div>
     {% set extend= ""%}
     {% if isProduction %}
