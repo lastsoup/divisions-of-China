@@ -99,6 +99,7 @@
 			        });
 				},
 				initTag:function(json){
+					this.current_json=json;
                     $.each(json,function(n,item){
 						var li='<li class="cndzk-entrance-division-box-content-tag ">'+item.name+'</li>';
 						division.divisioncontent.append(li);
@@ -110,10 +111,8 @@
 					this.tagClick();
 				},
 				initCity:function(index){
-					
 					this.divisioncontent.empty();
 					var citydata=this.current_json[index].children;
-					this.current_json=citydata;
 					this.initTag(citydata);
 				},
 				setActive:function(){
@@ -125,8 +124,15 @@
 					}else
 					{
 						this.divisiontitle.find("li").off("click");
-					    this.divisiontitle.find("li:lt("+(textlen+1)+")").on("click",function(){
-								alert(1);
+					    this.divisiontitle.find("li:lt("+textlen+")").on("click",function(){
+							  division.divisioncontent.empty();
+							  var index=$(this).index();
+							  var json=division.current_array[index];
+							  division.initTag(json.json);
+							  division.divisioncontent.find("li").removeClass("active");
+							  division.divisioncontent.find('li:eq('+json.index+')').addClass("active");
+							  division.divisiontitle.find("li").removeClass("active");
+					          division.divisiontitle.find('li:eq('+index+')').addClass("active");
 						});
 					}
 
@@ -146,21 +152,23 @@
 				tagClick:function(){
 				   this.divisioncontent.find("li").click(function(){
 						 var active=division.divisiontitle.find("li.active").index();
-						 if(active==3){
-							$(".cndzk-entrance-division-header-click-input").children(":eq(3)").remove();
-							division.current_array.splice(3);
-						 }
-						 var headerName='<span><span class="cndzk-entrance-division-header-click-input-name ">'+$(this).text()+'</span>';
-						 var headerSymbol='<span class="cndzk-entrance-division-header-click-input-symbol">'+(active==3?"":"/")+'</span></span>';
-						 $(".cndzk-entrance-division-header-click-input p").remove();
-						 $(".cndzk-entrance-division-header-click-input").append(headerName+headerSymbol);
-						 var next=active+1;
 						 var index=$(this).index();
+						 var activeindex=division.divisioncontent.find("li.active").index();
+						 $(".cndzk-entrance-division-header-click-input").children(":eq("+active+")").remove();
+						 division.current_array.splice(active);
 						 division.current_array.push({index:index,json: division.current_json});
+						 $(".cndzk-entrance-division-header-click-input").empty();
+						 $.each(division.current_array,function(n,item){
+							var name=item.json[item.index].name;
+							var headerName='<span><span class="cndzk-entrance-division-header-click-input-name ">'+name+'</span>';
+							var headerSymbol='<span class="cndzk-entrance-division-header-click-input-symbol">'+(n==3?"":"/")+'</span></span>';
+							$(".cndzk-entrance-division-header-click-input").append(headerName+headerSymbol);
+						 });
 						 if(active==3){
 							  division.divisionbox.hide();
 							  return;
 						 }
+						 var next=active+1;
                          division.initCity(index);
 						 division.divisiontitle.find("li").removeClass("active");
 					     division.divisiontitle.find('li:eq('+next+')').addClass("active");
