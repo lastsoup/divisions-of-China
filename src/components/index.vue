@@ -1,5 +1,6 @@
 <template>
   <div id="divisions">
+      <h2 class="top_title">基于cheerio抓取统计局官网最新行政划分数据</h2>
       <p>地址：<input id="host" value="http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2018/" /></p>
       选择
       <select id="level">
@@ -12,7 +13,6 @@
       <button @click="all">开始抓取数据</button>
       <button @click="save">保存数据</button>
       <button @click="erro">错误处理</button>
-      <button @click="test">测试数据</button>
       <span style="color:red;">注:最多获取到四级数据（乡级和村级可以数据可通过请求获取）</span>
      <div id="showdetail">
          <p class="detail">数据获取情况：地级<span class="ptotal">0</span>/<span class="pcount">0</span>条
@@ -27,7 +27,16 @@
       <div id="showerror" style="color:red;font-size: 13px;font-style: italic;border: solid 1px #758697;
     min-height: 100px;">
      </div>
+    <pre>
+     $.ajax({
+        type: "POST",
+        dataType: "json",
+        url:"/api/cheerio",
+        data: { url: "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2018/", selecter:".provincetr td"}
+     }).done(callback).fail(error);;
+	</pre>
 </div>
+
 </template>
 <script>
     var json=[],errojson=[];
@@ -49,17 +58,12 @@
                 newjson.push({'code':"71","name":"台湾省"});
                 newjson.push({'code':"81","name":"香港特别行政区"});
                 newjson.push({'code':"82","name":"澳门特别行政区"});
-                 console.log(newjson);
+                console.log(newjson);
                 console.log(JSON.stringify(newjson));
-                alert("打开浏览器控制台复制数据！")
+                alert("打开浏览器控制台复制数据！文件内替换（办事处）")
             },
             erro:function(){
                 this.Error();
-            },
-            test:function(){
-                $.getJSON("/street.json", "", function(data) {
-                    console.log(data);
-                });
             },
             all:function(){
                 var level=$("#level").get(0).selectedIndex;
@@ -142,9 +146,9 @@
                               $("#showdetail .detail .stotal").text(stotal);
                               callback(sdata,n,m,item);
                          },function(err){
-                            errojson.push({level:2,n:n,m:m,item:item});
-                            var errorstr='<p>县级错误:'+item.name+' &nbsp;错误类型:'+err.responseText+'</p>';
-                            $("#showerror").append(errorstr);
+                              errojson.push({level:2,n:n,m:m,item:item});
+                              var errorstr='<p>县级错误:'+item.name+' &nbsp;错误类型:'+err.responseText+'</p>';
+                              $("#showerror").append(errorstr);
                          });
                      })
                 });
@@ -158,13 +162,13 @@
                         var str2=sitem.code.substr(-2);
                         var url=dom.host+str1+"/"+str2+"/"+item.code+".html";
                         dom.scrape(url,selecter[3],function(tdata){
-                            scount=scount+1;
+                            scount=scount+1
                             json[n].children[m].children[i]["children"]=tdata;
                             $("#showdetail .detail .scount").text(scount);
                         },function(err){
-                        errojson.push({level:3,n:n,m:m,i,i,item:item});
-                        var errorstr='<p>乡级错误:'+item.name+' &nbsp;错误类型:'+err.responseText+'</p>';
-                        $("#showerror").append(errorstr);
+                            errojson.push({level:3,n:n,m:m,i,i,item:item});
+                            var errorstr='<p>乡级错误:'+item.name+' &nbsp;错误类型:'+err.responseText+'</p>';
+                            $("#showerror").append(errorstr);
                         });
                     });
                 });

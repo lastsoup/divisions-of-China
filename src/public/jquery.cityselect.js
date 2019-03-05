@@ -30,6 +30,7 @@ required:必选项
 		var prov_obj=box_obj.find(".prov");
 		var city_obj=box_obj.find(".city");
 		var dist_obj=box_obj.find(".dist");
+		var town_obj=box_obj.find(".town");
 		var prov_val=settings.prov;
 		var city_val=settings.city;
 		var dist_val=settings.dist;
@@ -44,26 +45,30 @@ required:必选项
 			};
 			city_obj.empty().attr("disabled",true);
 			dist_obj.empty().attr("disabled",true);
+			town_obj.empty().attr("disabled",true);
 
-			if(prov_id<0||typeof(city_json.citylist[prov_id].c)=="undefined"){
+			if(prov_id<0||typeof(city_json[prov_id].children)=="undefined"){
 				if(settings.nodata=="none"){
 					city_obj.css("display","none");
 					dist_obj.css("display","none");
+					town_obj.css("display","none");
 				}else if(settings.nodata=="hidden"){
 					city_obj.css("visibility","hidden");
 					dist_obj.css("visibility","hidden");
+					town_obj.css("visibility","hidden");
 				};
 				return;
 			};
 			
 			// 遍历赋值市级下拉列表
 			temp_html=select_prehtml;
-			$.each(city_json.citylist[prov_id].c,function(i,city){
-				temp_html+="<option value='"+city.n+"'>"+city.n+"</option>";
+			$.each(city_json[prov_id].children,function(i,city){
+				temp_html+="<option value='"+city.name+"'>"+city.name+"</option>";
 			});
 			city_obj.html(temp_html).attr("disabled",false).css({"display":"","visibility":""});
 			distStart();
 		};
+
 
 		// 赋值地区（县）函数
 		var distStart=function(){
@@ -74,29 +79,63 @@ required:必选项
 				city_id--;
 			};
 			dist_obj.empty().attr("disabled",true);
+			town_obj.empty().attr("disabled",true);
 
-			if(prov_id<0||city_id<0||typeof(city_json.citylist[prov_id].c[city_id].a)=="undefined"){
+			if(prov_id<0||city_id<0||typeof(city_json[prov_id].children[city_id].children)=="undefined"){
 				if(settings.nodata=="none"){
 					dist_obj.css("display","none");
+					town_obj.css("display","none");
 				}else if(settings.nodata=="hidden"){
 					dist_obj.css("visibility","hidden");
+					town_obj.css("visibility","hidden");
 				};
 				return;
 			};
 			
 			// 遍历赋值市级下拉列表
 			temp_html=select_prehtml;
-			$.each(city_json.citylist[prov_id].c[city_id].a,function(i,dist){
-				temp_html+="<option value='"+dist.s+"'>"+dist.s+"</option>";
+			$.each(city_json[prov_id].children[city_id].children,function(i,dist){
+				temp_html+="<option value='"+dist.name+"'>"+dist.name+"</option>";
 			});
 			dist_obj.html(temp_html).attr("disabled",false).css({"display":"","visibility":""});
+			if(dist_obj.length!=0)
+			townStart();
+		};
+
+		// 赋值乡镇街道函数
+		var townStart=function(){
+			var prov_id=prov_obj.get(0).selectedIndex;
+			var city_id=city_obj.get(0).selectedIndex;
+			var dist_id=dist_obj.get(0).selectedIndex;
+			if(!settings.required){
+				prov_id--;
+				city_id--;
+				dist_id--;
+			};
+			town_obj.empty().attr("disabled",true);
+
+			if(prov_id<0||city_id<0||typeof(city_json[prov_id].children[city_id].children[dist_id].children)=="undefined"){
+				if(settings.nodata=="none"){
+					town_obj.css("display","none");
+				}else if(settings.nodata=="hidden"){
+					town_obj.css("visibility","hidden");
+				};
+				return;
+			};
+			
+			// 遍历赋值市级下拉列表
+			temp_html=select_prehtml;
+			$.each(city_json[prov_id].children[city_id].children[dist_id].children,function(i,dist){
+				temp_html+="<option value='"+dist.name+"'>"+dist.name+"</option>";
+			});
+			town_obj.html(temp_html).attr("disabled",false).css({"display":"","visibility":""});
 		};
 
 		var init=function(){
 			// 遍历赋值省份下拉列表
 			temp_html=select_prehtml;
-			$.each(city_json.citylist,function(i,prov){
-				temp_html+="<option value='"+prov.p+"'>"+prov.p+"</option>";
+			$.each(city_json,function(i,prov){
+				temp_html+="<option value='"+prov.name+"'>"+prov.name+"</option>";
 			});
 			prov_obj.html(temp_html);
 
@@ -112,6 +151,12 @@ required:必选项
 							setTimeout(function(){
 								if(settings.dist!=null){
 									dist_obj.val(settings.dist);
+									townStart();
+									setTimeout(function(){
+										if(settings.town!=null){
+											town_obj.val(settings.town);										
+										};
+									},1);
 								};
 							},1);
 						};
@@ -127,6 +172,11 @@ required:必选项
 			// 选择市级时发生事件
 			city_obj.bind("change",function(){
 				distStart();
+			});
+
+			// 选择区县时发生事件
+			dist_obj.bind("change",function(){
+				townStart();
 			});
 		};
 

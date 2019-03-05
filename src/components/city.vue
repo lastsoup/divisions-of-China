@@ -1,6 +1,6 @@
 <template>
 <div id="main">
-			<h2 class="top_title">jquery.cityselect.js基于jQuery+JSON的省市联动效果</h2>
+			<h2 class="top_title">基于jQuery+JSON的省市联动效果</h2>
 			<div class="demo">
 				<h3>直接调用</h3>
 				<p>二级联动，默认选项为：请选择</p>
@@ -51,24 +51,143 @@
 				<pre>
 					$("#city_4").citySelect({prov:"湖南省", city:"长沙市"});
 					$("#city_5").citySelect({prov:"湖南省", city:"长沙市", dist:"岳麓区"}); 
-					$("#city_6").citySelect({prov:"湖南省", city:"长沙市", dist:"岳麓区",town:"岳麓街道",});
+					$("#city_6").citySelect({prov:"湖南省", city:"长沙市", dist:"岳麓区",town:"岳麓街道"});
 				</pre>
 			</div>
-			
+				<h2 class="top_title">仿淘宝四级联动</h2>
+				<div class="cndzk-entrance-division" style="width:500px;margin:20px;margin-bottom:400px;">
+				<div class="cndzk-entrance-division-header"><span class="cndzk-entrance-division-header-label"><div class="next-form-item-label"><label required="">地址信息:</label></div></span><div class="cndzk-entrance-division-header-click"><span class="cndzk-entrance-division-header-click-input"><p class="placeholder" data-spm-anchor-id="0.0.0.i0.650e175cHMvmAz">请选择省/市/区/街道</p></span><span class="cndzk-entrance-division-header-click-icon"></span></div></div>
+		        <div class="cndzk-entrance-division-box" style="display:none;"><ul class="cndzk-entrance-division-box-title"><li class="cndzk-entrance-division-box-title-level active" style="width: 25%;">省</li><li class="cndzk-entrance-division-box-title-level " style="width: 25%;">市</li><li class="cndzk-entrance-division-box-title-level " style="width: 25%;">区</li><li class="cndzk-entrance-division-box-title-level " style="width: 25%;">街道</li></ul><ul class="cndzk-entrance-division-box-content"><div></div></ul></div>
+				</div>
 		</div>
 </template>
+
 <script>
  export default {
         data () {
             return {
-                msg: 'Hello 6World!',
                 api:"/public/json/street.json"
             }
         },
         methods:{
-
+          
         },
          mounted:function(){
+			 var division={
+				division:".cndzk-entrance-division",
+				divisionheader:".cndzk-entrance-division-header",
+				divisionbox:".cndzk-entrance-division-box",
+				divisiontitle:".cndzk-entrance-division-box-title",
+				divisioncontent:".cndzk-entrance-division-box-content div",
+				url:"/public/json/street.json",
+				current_json:null,
+				current_array:[],
+				current_index:[],
+				init:function(){
+					this.division=$(this.division);
+					this.divisionheader=$(this.divisionheader);
+					this.divisionbox=$(this.divisionbox);
+					this.divisioncontent=$(this.divisioncontent);
+					this.divisiontitle=$(this.divisiontitle);
+					this.event();
+				},
+				initData:function(){
+					$.getJSON(this.url,function(json){
+						division.current_json=json;
+						division.divisioncontent.empty();
+						division.initTag(division.current_json);
+			        });
+				},
+				initTag:function(json){
+                    $.each(json,function(n,item){
+						var li='<li class="cndzk-entrance-division-box-content-tag ">'+item.name+'</li>';
+						division.divisioncontent.append(li);
+					});
+					//如果已经加载
+					if($(".cndzk-entrance-division-header-click-input p").length==0){
+						this.setActive();
+					}
+					this.tagClick();
+				},
+				initCity:function(index){
+					
+					this.divisioncontent.empty();
+					var citydata=this.current_json[index].children;
+					this.current_json=citydata;
+					this.initTag(citydata);
+				},
+				setActive:function(){
+					var active=division.divisiontitle.find("li.active").index();
+					var textlen=this.current_array.length;
+					if(textlen==4){
+					  var index=this.current_array[3].index;
+                      this.divisioncontent.find('li:eq('+index+')').addClass("active");
+					}else
+					{
+						this.divisiontitle.find("li").off("click");
+					    this.divisiontitle.find("li:lt("+(textlen+1)+")").on("click",function(){
+								alert(1);
+						});
+					}
+
+				},
+				headerClick:function(){
+					division.divisioncontent.empty();
+					if(!division.current_json){
+							division.divisioncontent.append("加载中……");
+							division.initData();
+						}else
+						{
+							//判断是否加载过
+						    division.initTag(division.current_json);
+						}
+					   division.divisionbox.show();
+				},
+				tagClick:function(){
+				   this.divisioncontent.find("li").click(function(){
+						 var active=division.divisiontitle.find("li.active").index();
+						 if(active==3){
+							$(".cndzk-entrance-division-header-click-input").children(":eq(3)").remove();
+							division.current_array.splice(3);
+						 }
+						 var headerName='<span><span class="cndzk-entrance-division-header-click-input-name ">'+$(this).text()+'</span>';
+						 var headerSymbol='<span class="cndzk-entrance-division-header-click-input-symbol">'+(active==3?"":"/")+'</span></span>';
+						 $(".cndzk-entrance-division-header-click-input p").remove();
+						 $(".cndzk-entrance-division-header-click-input").append(headerName+headerSymbol);
+						 var next=active+1;
+						 var index=$(this).index();
+						 division.current_array.push({index:index,json: division.current_json});
+						 if(active==3){
+							  division.divisionbox.hide();
+							  return;
+						 }
+                         division.initCity(index);
+						 division.divisiontitle.find("li").removeClass("active");
+					     division.divisiontitle.find('li:eq('+next+')').addClass("active");
+				   });
+				},
+				event:function(){
+					this.division.click(function(event){
+						//取消事件冒泡
+						var e = event;
+						if (e && e.stopPropagation) {
+							// this code is for Mozilla and Opera
+							e.stopPropagation();
+						} else if (window.event) {
+							// this code is for IE
+							window.event.cancelBubble = true;
+						}
+						if($(".cndzk-entrance-division-header-click-input").find(e.target).length>0||$(e.target).hasClass("cndzk-entrance-division-header-click-input"))
+						  division.headerClick();
+					});
+
+					 $(document).click(function () {    
+						 division.divisionbox.hide();
+					 }); 
+
+				}
+		      }
+			   division.init();
                $("#city_1").citySelect({
                     url:this.api,
 					nodata:"none",
@@ -82,7 +201,7 @@
 
 				$("#city_3").citySelect({
 					url:this.api,
-					prov:"北京市",
+					prov:"江苏省",
 					nodata:"none"
 				});
 				

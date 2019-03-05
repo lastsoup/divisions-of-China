@@ -82,8 +82,15 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                loader: 'style-loader!css-loader'
-            },
+                use: ExtractTextPlugin.extract({
+                  fallback: "style-loader", 
+                  use: "css-loader" 
+                }),//css提取到文件内；若无则加载在<style>
+              },
+            // {
+            //     test: /\.css$/,
+            //     loader: 'style-loader!css-loader'
+            // },
             {
                 test: /\.styl$/,
                 loader: ['style-loader', 'css-loader', 'stylus-loader','vue-style-loader']
