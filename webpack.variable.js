@@ -109,8 +109,8 @@ VARIABLE.ProvidePlugin = {
  * @prop host      主机地址
  */
 VARIABLE.server = {
-    post: 8080,
-    host: "http://127.0.0.1",
+    post: 3004,
+    host: "0.0.0.0",
 };
 
 /**
