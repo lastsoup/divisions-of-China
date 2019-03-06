@@ -24,9 +24,10 @@ rt.use('/', index.routes(),index.allowedMethods());
 rt.use('/api', api.routes(),api.allowedMethods());
 app.use(rt.routes()).use(rt.allowedMethods());
 /**加载路由End*/
-/*错误页处理Start*/
+
 if(isProduction){
 app.use(ServeStatic(buildDir));
+/*错误页处理Start*/
 app.use(async (ctx) => {
     switch (ctx.status) {
       case 404:
@@ -55,6 +56,7 @@ app.use(hotMiddleware(compiler, {
 app.use(ServeStatic(buildDir));
 /**热加载End*/
 }
+
 
 app.listen(server.post, () => {
     console.log(`服务器启动成功：${server.host + ":" + server.post}`)

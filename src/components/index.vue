@@ -42,9 +42,11 @@
     var json=[],errojson=[];
     var pcount=0,ccount=0,scount=0;
     var ptotal=0,ctotal=0,stotal=0,ttotal=0,vtotal=0;
+    import gatdata from '../public/json/gatdata';
     export default {
         data () {
             return {
+                gatdata:gatdata.data,
                 api1:"/api/cheerio",
                 api2:"/api/puppeteer",
                 api:"/api/cheerio",
@@ -55,9 +57,10 @@
         methods:{
             save:function(){
                 var newjson= [].concat(json);
-                newjson.push({'code':"71","name":"台湾省"});
-                newjson.push({'code':"81","name":"香港特别行政区"});
-                newjson.push({'code':"82","name":"澳门特别行政区"});
+                newjson.push(this.gatdata);
+                // newjson.push({'code':"71","name":"台湾省"});
+                // newjson.push({'code':"81","name":"香港特别行政区"});
+                // newjson.push({'code':"82","name":"澳门特别行政区"});
                 console.log(newjson);
                 console.log(JSON.stringify(newjson));
                 alert("打开浏览器控制台复制数据！文件内替换（办事处）")

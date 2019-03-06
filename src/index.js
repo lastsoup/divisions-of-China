@@ -6,6 +6,6 @@ var myVue = new Vue({
     el:"#firstVue",
     components: {'my-component': index,'my-area': area},
     data:{
-        myData:"vue:5444778"
+        data:'行政区域'
     }
 })
