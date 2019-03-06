@@ -2,7 +2,7 @@ var Router = require('koa-router');
 var rt=new Router();
 var mssql=require('../src/controllers/mssql-helper');
 var mysql=require('../src/controllers/mysql-helper');
-var puppeteer = require('../src/controllers/puppeteer');
+//var puppeteer = require('../src/controllers/puppeteer');
 var cheerio = require('../src/controllers/cheerio');
 
 rt.post('/cheerio',async(ctx, next) => {
@@ -12,12 +12,12 @@ rt.post('/cheerio',async(ctx, next) => {
     ctx.response.body = pdata;
 });
 
-rt.post('/puppeteer',async(ctx, next) => {
-    //puppeteer抓取行政区
-    let postParam = ctx.request.body;
-    let pdata= await puppeteer.scrape(postParam.url,postParam.selecter);
-    ctx.body = pdata;
-});
+// rt.post('/puppeteer',async(ctx, next) => {
+//     //puppeteer抓取行政区
+//     let postParam = ctx.request.body;
+//     let pdata= await puppeteer.scrape(postParam.url,postParam.selecter);
+//     ctx.body = pdata;
+// });
 
 rt.post('/savejson',async(ctx, next) => {
   let postParam = ctx.request.body;

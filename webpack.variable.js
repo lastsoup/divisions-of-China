@@ -110,7 +110,7 @@ VARIABLE.ProvidePlugin = {
  */
 VARIABLE.server = {
     post: 3004,
-    host: "0.0.0.0",
+    host: "http://0.0.0.0",
 };
 
 /**
