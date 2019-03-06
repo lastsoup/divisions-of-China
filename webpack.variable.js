@@ -18,7 +18,6 @@ VARIABLE.getPath = (src = "") => path.resolve(__dirname, src);
  */
 VARIABLE.isProduction = process.env.NODE_ENV === 'production' ? true : false;
 
-
 /**
  * 构建文件目录
  * @type {string}
@@ -62,6 +61,7 @@ VARIABLE.output = {
     media: "dist/media/[name].[ext]",
     dllFilename: `./dist/vendor/js/main${VARIABLE.isProduction ? ".min" : ""}.js`,
 };
+
 
 /**
  * html插件配置

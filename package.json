@@ -16,6 +16,8 @@
         "extract-text-webpack-plugin": "^3.0.2",
         "file-loader": "^1.1.5",
         "gulp": "^3.9.1",
+        "gulp-if": "^2.0.2",
+        "gulp-javascript-obfuscator": "^1.1.5",
         "html-webpack-plugin": "^2.30.1",
         "koa-webpack-middleware": "^1.0.7",
         "node-sass": "^4.7.2",
@@ -31,11 +33,13 @@
         "webpack": "^3.9.1"
     },
     "scripts": {
-        "build-p": "cross-env NODE_ENV=production webpack --config webpack.dll.js --progress -p && cross-env NODE_ENV=production webpack --progress -p",
-        "build-d": "webpack --config webpack.dll.js --progress && webpack",
+        "gulp": "gulp",
+        "build-p": "cross-env NODE_ENV=production webpack --config webpack.dll.js --progress -p && cross-env NODE_ENV=production webpack --progress -p && cross-env NODE_ENV=production gulp",
+        "build-d": "webpack --config webpack.dll.js --progress && webpack && gulp",
         "dev": "npm run build-d && node server.js",
         "debug": "npm run build-d && node server-koa.js",
-        "release": "npm run build-p && cross-env NODE_ENV=production node server-koa.js"
+        "release": "npm run build-p && cross-env NODE_ENV=production node server-koa.js",
+        "www": "cross-env NODE_ENV=production node server-koa.js"
     },
     "author": "陈清元",
     "license": "MIT",
