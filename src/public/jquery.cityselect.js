@@ -10,7 +10,7 @@ city:默认城市
 dist:默认地区（县）
 nodata:无数据状态
 division：仿淘宝四级联动
-<div class="cndzk-entrance-division" style="width:500px;margin:20px;margin-bottom:400px;">
+<div class="cndzk-entrance-division suspend word-wrap" style="width:500px;">
 <div class="cndzk-entrance-division-header"><span class="cndzk-entrance-division-header-label"><div class="next-form-item-label"><label required="">地址信息:</label></div></span><div class="cndzk-entrance-division-header-click"><span class="cndzk-entrance-division-header-click-input"><p class="placeholder" data-spm-anchor-id="0.0.0.i0.650e175cHMvmAz">请选择省/市/区/街道</p></span><span class="cndzk-entrance-division-header-click-icon"></span></div></div>
 <div class="cndzk-entrance-division-box" style="display:none;"><ul class="cndzk-entrance-division-box-title"><li class="cndzk-entrance-division-box-title-level active" style="width: 25%;">省</li><li class="cndzk-entrance-division-box-title-level " style="width: 25%;">市</li><li class="cndzk-entrance-division-box-title-level " style="width: 25%;">区</li><li class="cndzk-entrance-division-box-title-level " style="width: 25%;">街道</li></ul><ul class="cndzk-entrance-division-box-content"><div></div></ul></div>
 </div>
@@ -58,10 +58,17 @@ required:必选项
 				this.event();
 			},
 			initData:function(){
-				$.getJSON(this.url,function(json){
+				var setdata=function(json){
 					division.current_json=json;
 					division.divisioncontent.empty();
 					division.initTag(division.current_json);
+				}
+				if(this.data){
+					setdata(this.data);
+					return;
+				}
+				$.getJSON(this.url,function(json){
+					setdata(json);
 				});
 			},
 			initTag:function(json){
@@ -308,6 +315,17 @@ required:必选项
 		};
 
 		// 设置省市json数据
+		if(streetdata){
+			if(settings.division){
+				division.data=streetdata;
+				division.init();
+			}
+			else{
+				city_json=streetdata;
+				init();
+			}
+			return;
+	  }
 		if(typeof(settings.url)=="string"){
 			if(settings.division){
 				division.url=settings.url;
