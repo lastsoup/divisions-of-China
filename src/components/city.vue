@@ -77,7 +77,7 @@
           
         },
          mounted:function(){
-			   $.fn.citySelect({url:this.api,division:true});
+			   $.division();
                $("#city_1").citySelect({
                     url:this.api,
 					nodata:"none",

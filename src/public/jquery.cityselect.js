@@ -17,6 +17,204 @@ division：仿淘宝四级联动
 required:必选项
 ------------------------------ */
 (function($){
+	$.division=function(options){
+			var defaults = {
+				url:"area.json",
+				validator: false,
+				validatorForm:$("#config-form"),
+				validatorName:"ProjectCityName",
+                value:[{index:0,name:"北京市"}]
+			}
+			var opt = $.extend({},defaults, options);
+			var division={
+				validator:false,
+				division:".cndzk-entrance-division",
+				divisionheader:".cndzk-entrance-division-header",
+				divisionbox:".cndzk-entrance-division-box",
+				divisiontitle:".cndzk-entrance-division-box-title",
+				divisioncontent:".cndzk-entrance-division-box-content div",
+				url:"/public/json/street.json",
+				value:null,
+				current_json:null,
+				current_array:[],
+				current_index:[],
+				init:function(){
+					this.division=$(this.division);
+					this.divisionheader=$(this.divisionheader);
+					this.divisionbox=$(this.divisionbox);
+					this.divisioncontent=$(this.divisioncontent);
+					this.divisiontitle=$(this.divisiontitle);
+					if(this.validator){
+						var text=opt.value?"验证通过":"";
+						this.division.after('<input type="hidden" name="'+opt.validatorName+'" value="'+text+'" />');
+					}
+					
+					if(this.value){
+						$(".cndzk-entrance-division-header-click-input").empty();
+						$.each(opt.value,function(n,item){
+							var name=item.name;
+							var headerName='<span><span class="cndzk-entrance-division-header-click-input-name ">'+name+'</span>';
+							var headerSymbol='<span class="cndzk-entrance-division-header-click-input-symbol">'+((n+1)==opt.value.length?"":"/")+'</span></span>';
+							$(".cndzk-entrance-division-header-click-input").append(headerName+headerSymbol);
+						 });
+					}
+					this.event();
+				},
+				setValue:function(){
+					this.current_array=opt.value;
+					var index=opt.value.length;
+					this.divisiontitle.find("li").removeClass("active");
+					this.divisiontitle.find('li:eq('+index+')').addClass("active");
+					var json=this.current_json;
+					$.each(division.current_array,function(n,item){
+						item["json"]=json;
+						json=json[item.index].children;
+					 });
+					this.UpTag(json);
+				},
+				initData:function(){
+					var setdata=function(json){
+						division.current_json=json;
+						division.divisioncontent.empty();
+						if(!division.value){
+						  division.initTag(division.current_json);
+						}else
+						{
+							division.setValue();
+						}
+					}
+					if(this.data){
+						setdata(this.data);
+						return;
+					}
+					$.getJSON(this.url,function(json){
+						setdata(json);
+					});
+				},
+				initTag:function(json){
+					this.current_json=json;
+					$.each(json,function(n,item){
+						var li='<li class="cndzk-entrance-division-box-content-tag ">'+item.name+'</li>';
+						division.divisioncontent.append(li);
+					});
+					this.setActive("next");
+					this.tagClick();
+				},
+				UpTag:function(json){
+					this.current_json=json;
+					$.each(json,function(n,item){
+						var li='<li class="cndzk-entrance-division-box-content-tag ">'+item.name+'</li>';
+						division.divisioncontent.append(li);
+					});
+					this.setActive("up");
+					this.tagClick();
+				},
+				setActive:function(tag){
+					var active=division.divisiontitle.find("li.active").index()+1;
+					var textlen=this.current_array.length;
+					if(active<=textlen&&tag=="up"){
+						var lastobject=this.current_array[textlen-1];
+						this.divisioncontent.find('li:eq('+lastobject.index+')').addClass("active");
+					}
+					this.divisiontitle.find("li").off("click");
+					this.divisiontitle.find("li:lt("+textlen+")").on("click",function(){
+							division.divisioncontent.empty();
+							var index=$(this).index();
+							var json=division.current_array[index];
+							division.initTag(json.json);
+							division.divisioncontent.find("li").removeClass("active");
+							division.divisioncontent.find('li:eq('+json.index+')').addClass("active");
+							division.divisiontitle.find("li").removeClass("active");
+							division.divisiontitle.find('li:eq('+index+')').addClass("active");
+					});
+	
+				},
+				headerClick:function(){
+					division.divisioncontent.empty();
+					if(!division.current_json){
+							division.divisioncontent.append("加载中……");
+							division.initData();
+						}else
+						{
+							//判断是否加载过
+							   division.UpTag(division.current_json);
+						}
+						 division.divisionbox.show();
+				},
+				Validator:function(){
+					if(opt.validator){ 
+						var hidden=division.division.next();
+						var input=$(".cndzk-entrance-division-header-click-input");
+						var text=$(".cndzk-entrance-division-header-click-input p").length==0?input.text():"";
+						hidden.val(text);
+						opt.validatorForm.data('bootstrapValidator').updateStatus(opt.validatorName, 'NOT_VALIDATED').validateField(opt.validatorName);
+					}
+				},
+				tagClick:function(){
+					 this.divisioncontent.find("li").click(function(){
+						 var active=division.divisiontitle.find("li.active").index();
+						 var index=$(this).index();
+						 var activeindex=division.divisioncontent.find("li.active").index();
+						 $(".cndzk-entrance-division-header-click-input").children(":eq("+active+")").remove();
+						 division.current_array.splice(active);
+						 division.current_array.push({index:index,json: division.current_json});
+						 $(".cndzk-entrance-division-header-click-input").empty();
+						 division.value=[];
+						 $.each(division.current_array,function(n,item){
+							var name=item.json[item.index].name;
+							var children=item.json[item.index].children;
+							division.value.push({index:item.index,name:name})
+							var headerName='<span><span class="cndzk-entrance-division-header-click-input-name ">'+name+'</span>';
+							var headerSymbol='<span class="cndzk-entrance-division-header-click-input-symbol">'+(!children?"":"/")+'</span></span>';
+							$(".cndzk-entrance-division-header-click-input").append(headerName+headerSymbol);
+						 });
+						 division.divisioncontent.empty();
+						 var citydata=division.current_json[index].children;
+						 division.Validator();
+						 if(citydata){
+							division.initTag(citydata);
+						 }else{
+							 division.divisionbox.hide();
+							 return;
+						 }
+						 division.divisiontitle.find("li").removeClass("active");
+						 division.divisiontitle.find('li:eq('+(active+1)+')').addClass("active");
+
+					 });
+				},
+				event:function(){
+					this.division.click(function(event){
+						//取消事件冒泡
+						var e = event;
+						if (e && e.stopPropagation) {
+							// this code is for Mozilla and Opera
+							e.stopPropagation();
+						} else if (window.event) {
+							// this code is for IE
+							window.event.cancelBubble = true;
+						}
+						if($(".cndzk-entrance-division-header-click-input").find(e.target).length>0||$(e.target).hasClass("cndzk-entrance-division-header-click-input"))
+							division.headerClick();
+					});
+	
+					 $(document).click(function () {
+						 division.divisionbox.hide();
+					 }); 
+	
+				}
+				}
+				division.value=opt.value;
+				division.validator=opt.validator;
+				if(streetdata){
+					division.data=streetdata;
+					division.init();
+				}else{
+					division.url=settings.url;
+					division.init();
+				}
+
+				return division;
+	}
 	$.fn.citySelect=function(options){
 		// 默认值
 		var settings = $.extend(true,{
@@ -25,7 +223,6 @@ required:必选项
 			city:null,
 			dist:null,
 			nodata:null,
-			division:false,
 			required:true
 		},options);
 		var box_obj=this;
@@ -36,140 +233,10 @@ required:必选项
 		var prov_val=settings.prov;
 		var city_val=settings.city;
 		var dist_val=settings.dist;
-		var select_prehtml=(settings.required) ? "" : "<option value=''>请选择</option>";
+		var select_prehtml=(settings.required) ? "" : "<option value=''>----请选择----</option>";
 		var city_json;
 
-		var division={
-			division:".cndzk-entrance-division",
-			divisionheader:".cndzk-entrance-division-header",
-			divisionbox:".cndzk-entrance-division-box",
-			divisiontitle:".cndzk-entrance-division-box-title",
-			divisioncontent:".cndzk-entrance-division-box-content div",
-			url:"/public/json/street.json",
-			current_json:null,
-			current_array:[],
-			current_index:[],
-			init:function(){
-				this.division=$(this.division);
-				this.divisionheader=$(this.divisionheader);
-				this.divisionbox=$(this.divisionbox);
-				this.divisioncontent=$(this.divisioncontent);
-				this.divisiontitle=$(this.divisiontitle);
-				this.event();
-			},
-			initData:function(){
-				var setdata=function(json){
-					division.current_json=json;
-					division.divisioncontent.empty();
-					division.initTag(division.current_json);
-				}
-				if(this.data){
-					setdata(this.data);
-					return;
-				}
-				$.getJSON(this.url,function(json){
-					setdata(json);
-				});
-			},
-			initTag:function(json){
-				this.current_json=json;
-				$.each(json,function(n,item){
-					var li='<li class="cndzk-entrance-division-box-content-tag ">'+item.name+'</li>';
-					division.divisioncontent.append(li);
-				});
-				this.setActive("next");
-				this.tagClick();
-			},
-			UpTag:function(json){
-				this.current_json=json;
-				$.each(json,function(n,item){
-					var li='<li class="cndzk-entrance-division-box-content-tag ">'+item.name+'</li>';
-					division.divisioncontent.append(li);
-				});
-				this.setActive("up");
-				this.tagClick();
-			},
-			setActive:function(tag){
-				var active=division.divisiontitle.find("li.active").index()+1;
-				var textlen=this.current_array.length;
-				if(active<=textlen&&tag=="up"){
-					var lastobject=this.current_array[textlen-1];
-					this.divisioncontent.find('li:eq('+lastobject.index+')').addClass("active");
-				}
-				this.divisiontitle.find("li").off("click");
-				this.divisiontitle.find("li:lt("+textlen+")").on("click",function(){
-						division.divisioncontent.empty();
-						var index=$(this).index();
-						var json=division.current_array[index];
-						division.initTag(json.json);
-						division.divisioncontent.find("li").removeClass("active");
-						division.divisioncontent.find('li:eq('+json.index+')').addClass("active");
-						division.divisiontitle.find("li").removeClass("active");
-						division.divisiontitle.find('li:eq('+index+')').addClass("active");
-				});
-
-			},
-			headerClick:function(){
-				division.divisioncontent.empty();
-				if(!division.current_json){
-						division.divisioncontent.append("加载中……");
-						division.initData();
-					}else
-					{
-						//判断是否加载过
-						division.UpTag(division.current_json);
-					}
-				   division.divisionbox.show();
-			},
-			tagClick:function(){
-			   this.divisioncontent.find("li").click(function(){
-					 var active=division.divisiontitle.find("li.active").index();
-					 var index=$(this).index();
-					 var activeindex=division.divisioncontent.find("li.active").index();
-					 $(".cndzk-entrance-division-header-click-input").children(":eq("+active+")").remove();
-					 division.current_array.splice(active);
-					 division.current_array.push({index:index,json: division.current_json});
-					 $(".cndzk-entrance-division-header-click-input").empty();
-					 $.each(division.current_array,function(n,item){
-						var name=item.json[item.index].name;
-						var children=item.json[item.index].children;
-						var headerName='<span><span class="cndzk-entrance-division-header-click-input-name ">'+name+'</span>';
-						var headerSymbol='<span class="cndzk-entrance-division-header-click-input-symbol">'+(!children?"":"/")+'</span></span>';
-						$(".cndzk-entrance-division-header-click-input").append(headerName+headerSymbol);
-					 });
-					 division.divisioncontent.empty();
-					 var citydata=division.current_json[index].children;
-					 if(citydata){
-						division.initTag(citydata);
-					 }else{
-						 division.divisionbox.hide();
-						 return;
-					 }
-					 division.divisiontitle.find("li").removeClass("active");
-					 division.divisiontitle.find('li:eq('+(active+1)+')').addClass("active");
-			   });
-			},
-			event:function(){
-				this.division.click(function(event){
-					//取消事件冒泡
-					var e = event;
-					if (e && e.stopPropagation) {
-						// this code is for Mozilla and Opera
-						e.stopPropagation();
-					} else if (window.event) {
-						// this code is for IE
-						window.event.cancelBubble = true;
-					}
-					if($(".cndzk-entrance-division-header-click-input").find(e.target).length>0||$(e.target).hasClass("cndzk-entrance-division-header-click-input"))
-					  division.headerClick();
-				});
-
-				 $(document).click(function () {    
-					 division.divisionbox.hide();
-				 }); 
-
-			}
-		  }
+		
 
 		// 赋值市级函数
 		var cityStart=function(){
@@ -316,30 +383,20 @@ required:必选项
 
 		// 设置省市json数据
 		if(streetdata){
-			if(settings.division){
-				division.data=streetdata;
-				division.init();
-			}
-			else{
-				city_json=streetdata;
-				init();
-			}
+			city_json=streetdata;
+			init();
 			return;
 	  }
 		if(typeof(settings.url)=="string"){
-			if(settings.division){
-				division.url=settings.url;
-				division.init();
-			}
-			else{
-				$.getJSON(settings.url,function(json){
-					city_json=json;
-					init();
-			    });
-			}
+			$.getJSON(settings.url,function(json){
+				city_json=json;
+				init();
+				});
 		}else{
 			city_json=settings.url;
 			init();
 		};
+		
+
 	};
 })(jQuery);
