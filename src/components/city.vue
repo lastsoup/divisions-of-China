@@ -56,7 +56,7 @@
 			</div>
 				<h2 class="top_title">仿淘宝四级联动</h2>
 				<pre>
-					 $.fn.citySelect({url:this.api,division:true});
+					$.division();
 				</pre>
 				<div class="cndzk-entrance-division suspend" style="width:500px;">
 				<div class="cndzk-entrance-division-header"><span class="cndzk-entrance-division-header-label"><div class="next-form-item-label"><label required="">地址信息:</label></div></span><div class="cndzk-entrance-division-header-click"><span class="cndzk-entrance-division-header-click-input"><p class="placeholder" data-spm-anchor-id="0.0.0.i0.650e175cHMvmAz">请选择省/市/区/街道</p></span><span class="cndzk-entrance-division-header-click-icon"></span></div></div>
