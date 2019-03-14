@@ -10,7 +10,9 @@ const Koa = require('koa'),
 /**加载路由Start 注：无路由默认起始页面inde.html*/
 //post处理
 const bodyparser = require('koa-bodyparser');
+const cors = require('koa2-cors');
 app.use(bodyparser());
+app.use(cors());
 //swig模板
 var views = require('koa-views');
 var swig = require('swig');

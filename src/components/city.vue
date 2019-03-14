@@ -70,14 +70,14 @@
  export default {
         data () {
             return {
-                api:"/public/json/street.json"
+                api:"/public/json/city.json"
             }
         },
         methods:{
           
         },
          mounted:function(){
-			   $.division();
+			   $.division({url:this.api});
                $("#city_1").citySelect({
                     url:this.api,
 					nodata:"none",

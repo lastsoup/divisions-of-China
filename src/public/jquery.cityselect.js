@@ -19,11 +19,10 @@ required:必选项
 (function($){
 	$.division=function(options){
 			var defaults = {
-				url:"area.json",
 				validator: false,
 				validatorForm:$("#config-form"),
 				validatorName:"ProjectCityName",
-                value:[{index:0,name:"北京市"}]
+               value:[{index:0,name:"北京市"}]
 			}
 			var opt = $.extend({},defaults, options);
 			var division={
@@ -34,6 +33,8 @@ required:必选项
 				divisiontitle:".cndzk-entrance-division-box-title",
 				divisioncontent:".cndzk-entrance-division-box-content div",
 				url:"/public/json/street.json",
+				api:"http://58.213.48.24:3004/api/cheerio",
+				govUrl:"http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2018/",
 				value:null,
 				current_json:null,
 				current_array:[],
@@ -60,17 +61,52 @@ required:必选项
 					}
 					this.event();
 				},
+				setServer:function(code,callback){
+					var str1=code.substr(0,2);
+					var str2=code.substr(2,2);
+					var url=division.govUrl+str1+"/"+str2+"/"+code+".html";
+					division.divisioncontent.append("加载中……");
+					$.ajax({
+						type: "POST",
+						dataType: "json",
+						url: division.api,
+						data: { url: url, selecter:".towntr td:last-child"}}).done(function(citydata){
+							division.divisioncontent.empty();
+							callback(citydata);
+						}).fail(function(err){
+							 console.log(err);
+						});;
+				},
 				setValue:function(){
 					this.current_array=opt.value;
-					var index=opt.value.length;
-					this.divisiontitle.find("li").removeClass("active");
-					this.divisiontitle.find('li:eq('+index+')').addClass("active");
+					var len=opt.value.length;
 					var json=this.current_json;
+					var index=len;
+					var start=json[division.current_array[0].index].code.substr(0,1);
+					var lastcode;
 					$.each(division.current_array,function(n,item){
-						item["json"]=json;
-						json=json[item.index].children;
+							item["json"]=json;
+							var child=json[item.index].children;
+							if(!child){
+								lastcode=json[item.index].code;
+								if(start=="8"){
+									index=n;	
+								}else if(n==3){
+								   index=n;		
+								}
+							}else{
+								json=child;
+							}
 					 });
-					this.UpTag(json);
+					 this.divisiontitle.find("li").removeClass("active");
+					 this.divisiontitle.find('li:eq('+index+')').addClass("active");
+					 if(start!="8"&&len>2){
+						division.setServer(lastcode,function(data){
+							division.UpTag(data);
+						})
+					 }else{
+					   this.UpTag(json);
+					 }
 				},
 				initData:function(){
 					var setdata=function(json){
@@ -94,7 +130,8 @@ required:必选项
 				initTag:function(json){
 					this.current_json=json;
 					$.each(json,function(n,item){
-						var li='<li class="cndzk-entrance-division-box-content-tag ">'+item.name+'</li>';
+						var name=item.name.replace("办事处","");
+						var li='<li class="cndzk-entrance-division-box-content-tag ">'+name+'</li>';
 						division.divisioncontent.append(li);
 					});
 					this.setActive("next");
@@ -103,7 +140,8 @@ required:必选项
 				UpTag:function(json){
 					this.current_json=json;
 					$.each(json,function(n,item){
-						var li='<li class="cndzk-entrance-division-box-content-tag ">'+item.name+'</li>';
+						var name=item.name.replace("办事处","");
+						var li='<li class="cndzk-entrance-division-box-content-tag ">'+name+'</li>';
 						division.divisioncontent.append(li);
 					});
 					this.setActive("up");
@@ -154,18 +192,21 @@ required:必选项
 					 this.divisioncontent.find("li").click(function(){
 						 var active=division.divisiontitle.find("li.active").index();
 						 var index=$(this).index();
-						 var activeindex=division.divisioncontent.find("li.active").index();
 						 $(".cndzk-entrance-division-header-click-input").children(":eq("+active+")").remove();
 						 division.current_array.splice(active);
 						 division.current_array.push({index:index,json: division.current_json});
 						 $(".cndzk-entrance-division-header-click-input").empty();
+						 //获取
+						 var code=division.current_json[index].code;
+						 var start=code.substr(0,1);
 						 division.value=[];
 						 $.each(division.current_array,function(n,item){
-							var name=item.json[item.index].name;
+							var name=item.json[item.index].name.replace("办事处","");
 							var children=item.json[item.index].children;
 							division.value.push({index:item.index,name:name})
 							var headerName='<span><span class="cndzk-entrance-division-header-click-input-name ">'+name+'</span>';
-							var headerSymbol='<span class="cndzk-entrance-division-header-click-input-symbol">'+(!children?"":"/")+'</span></span>';
+							var symbol=!children?(n==2&&start!="8"?"/":""):"/";
+							var headerSymbol='<span class="cndzk-entrance-division-header-click-input-symbol">'+symbol+'</span></span>';
 							$(".cndzk-entrance-division-header-click-input").append(headerName+headerSymbol);
 						 });
 						 division.divisioncontent.empty();
@@ -174,8 +215,17 @@ required:必选项
 						 if(citydata){
 							division.initTag(citydata);
 						 }else{
-							 division.divisionbox.hide();
-							 return;
+							var len=code.length;
+							 if(start=="8"||len!=6){
+									division.divisionbox.hide();
+									return;
+							 }else
+							 {
+									//从服务器获取数据
+								  division.setServer(code,function(data){
+										division.initTag(data);
+									});
+							 }
 						 }
 						 division.divisiontitle.find("li").removeClass("active");
 						 division.divisiontitle.find('li:eq('+(active+1)+')').addClass("active");
@@ -205,11 +255,11 @@ required:必选项
 				}
 				division.value=opt.value;
 				division.validator=opt.validator;
-				if(streetdata){
-					division.data=streetdata;
+				if(opt.data){
+					division.data=opt.data;
 					division.init();
 				}else{
-					division.url=settings.url;
+					division.url=opt.url;
 					division.init();
 				}
 
@@ -382,8 +432,8 @@ required:必选项
 		};
 
 		// 设置省市json数据
-		if(streetdata){
-			city_json=streetdata;
+		if(settings.data){
+			city_json=settings.data;
 			init();
 			return;
 	  }

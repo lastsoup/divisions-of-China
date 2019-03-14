@@ -51,13 +51,15 @@
                 api2:"/api/puppeteer",
                 api:"/api/cheerio",
                 host:"http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2018/",
-                selecter:[".provincetr td",".citytr td:last-child",".countytr td:last-child",".towntr td:last-child","villagetr"]
+                selecter:[".provincetr td",".citytr td:last-child",".countytr td:last-child",".towntr td:last-child",".villagetr td:last-child"]
             }
         },
         methods:{
             save:function(){
                 var newjson= [].concat(json);
-                newjson.push(this.gatdata);
+                $.each(this.gatdata,function(){
+                    newjson.push(this);
+                })
                 // newjson.push({'code':"71","name":"台湾省"});
                 // newjson.push({'code':"81","name":"香港特别行政区"});
                 // newjson.push({'code':"82","name":"澳门特别行政区"});
@@ -70,8 +72,10 @@
             },
             all:function(){
                 var level=$("#level").get(0).selectedIndex;
-                ptotal=pcount=ctotal=ccount=stotal=scount=0;
-                errojson=[];
+                   json=[];
+                   errojson=[];
+                   pcount=ccount=scount=0;
+                   ptotal=ctotal=stotal=ttotal=vtotal=0;
                 this.host=$("#host").val();
                 $("#showerror").empty();
                 switch(level){
