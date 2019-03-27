@@ -1,6 +1,6 @@
 <template>
   <div id="divisions">
-      <h2 class="top_title">基于cheerio抓取统计局官网最新行政划分数据</h2>
+      <h2 class="top_title"><i class="iconfont">&#xe601;</i>基于cheerio抓取统计局官网最新行政划分数据</h2>
       <p>地址：<input id="host" value="http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2018/" /></p>
       选择
       <select id="level">
