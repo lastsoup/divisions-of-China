@@ -8,12 +8,14 @@
         <option value ="1">地级</option>
         <option value="2">县级</option>
         <option value="3">乡级</option>
-        <option value="4">村级</option>
+        <!-- <option value="4">村级</option> -->
       </select>
       <button @click="all">开始抓取数据</button>
       <button @click="save">保存数据</button>
       <button @click="erro">错误处理</button>
-      <span style="color:red;">注:最多获取到四级数据（乡级和村级可以数据可通过请求获取）</span>
+       <input id="code" value=""  autocomplete="off" />
+      <button @click="output">行政编号输出数据</button>
+      <span style="color:red;">建议:最多一次性获取到三级数据（村级数据可通过行政编号请求获取）</span>
      <div id="showdetail">
          <p class="detail">数据获取情况：地级<span class="ptotal">0</span>/<span class="pcount">0</span>条
          &nbsp; 
@@ -47,9 +49,8 @@
         data () {
             return {
                 gatdata:gatdata.data,
-                api1:"/api/cheerio",
-                api2:"/api/puppeteer",
                 api:"/api/cheerio",
+                api1:"/api/json",
                 host:"http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2018/",
                 selecter:[".provincetr td",".citytr td:last-child",".countytr td:last-child",".towntr td:last-child",".villagetr td:last-child"]
             }
@@ -65,7 +66,67 @@
                 // newjson.push({'code':"82","name":"澳门特别行政区"});
                 console.log(newjson);
                 console.log(JSON.stringify(newjson));
-                alert("打开浏览器控制台复制数据！文件内替换（办事处）")
+                alert("打开浏览器控制台复制数据！文件内替换（办事处）");
+            },
+            output:function(){
+                var code=$("#code").val();
+                var index=0;
+                var url=this.host;
+                switch(code.length){
+                    case 0:
+                    {
+                        index=0;
+                        break;
+                    }
+                    case 2:
+                    {
+                        index=1;
+                        url=this.host+code+".html";
+                        break;
+                    }
+                    case 4:
+                    {
+                        index=2;
+                        var str1=code.substr(0,2);
+                        var url=this.host+str1+"/"+code+".html";
+                        break;
+                    }
+                     case 6:
+                    {
+                        index=3;
+                        var str1=code.substr(0,2);
+                        var str2=code.substr(2,2);
+                        var url=this.host+str1+"/"+str2+"/"+code+".html";
+                        break;
+                    }
+                     case 9:
+                    {
+                        index=4;
+                        var str1=code.substr(0,2);
+                        var str2=code.substr(2,2);
+                        var str3=code.substr(4,2);
+                        var url=this.host+str1+"/"+str2+"/"+str3+"/"+code+".html";
+                        break;
+                    }
+                    default:
+                    {
+                        alert("编码填写错误");
+                        return;
+                    }
+                }
+                var selecter=this.selecter[index];
+                 $.ajax({
+                        type: "POST",
+                        dataType: "json",
+                        url: this.api1,
+                        data: { url: url, selecter:selecter}
+                    }).done(function(data){
+                         console.log(data);
+                         console.log(JSON.stringify(data));
+                         alert("打开浏览器控制台复制数据！");
+                    }).fail(function(erro){
+
+                    });
             },
             erro:function(){
                 this.Error();
@@ -107,7 +168,7 @@
                         dataType: "json",
                         url: this.api,
                         data: { url: url, selecter:selecter}
-                    }).done(callback).fail(error);;
+                    }).done(callback).fail(error);
             },
             Province: function (callback) {
                 this.scrape(this.host,this.selecter[0],function(data){

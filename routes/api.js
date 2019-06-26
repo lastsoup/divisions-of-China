@@ -8,8 +8,15 @@ var cheerio = require('../src/controllers/cheerio');
 rt.post('/cheerio',async(ctx, next) => {
     //cheerio抓取行政区
     let postParam = ctx.request.body;
-    let pdata=await cheerio.Province(postParam.url,postParam.selecter);
+    let pdata=await cheerio.Json1(postParam.url,postParam.selecter);
     ctx.response.body = pdata;
+});
+
+rt.post('/json',async(ctx, next) => {
+  //cheerio抓取行政区
+  let postParam = ctx.request.body;
+  let pdata=await cheerio.Json2(postParam.url,postParam.selecter);
+  ctx.response.body = pdata;
 });
 
 // rt.post('/puppeteer',async(ctx, next) => {

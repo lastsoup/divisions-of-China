@@ -13,7 +13,7 @@ var fn={};
  * 村级（村委会居委会，Village）    villagetr
  */
 
-fn.Province = async function (url,selecte) {
+fn.Json1 = async function (url,selecte) {
   return new Promise(( resolve, reject ) => {
       try{
         superagent.get(url).
@@ -44,5 +44,44 @@ fn.Province = async function (url,selecte) {
   });
 };
 
+fn.Json2 = async function (url,selecte) {
+  return new Promise(( resolve, reject ) => {
+      try{
+        superagent.get(url).
+        retry(2).
+        set('Accept-Encoding', 'identity').
+        buffer(true).charset('gb2312').end(function (err, res) {
+          if (err) {
+            reject(err)
+          }
+          if(res){
+            var items = [];
+            var $ = cheerio.load(res.text);
+            if(selecte==".villagetr td:last-child"){
+                $(selecte).each(function (idx, el) {
+                  var $element = $(el);
+                  var name =$element.text();
+                  items.push(name);
+                });
+            }else{
+                var json={};
+                $(selecte).find("a").each(function (idx, el) {
+                  var $element = $(el);
+                  var href=$element.attr('href');
+                  var code=href.replace(/(.*\/)*([^.]+).*/ig,"$2");
+                  var name =$element.text();
+                  json[code]=name.replace("办事处","");
+                  items=json;
+                });
+            }
+            resolve(items);
+          }
+        });
+    
+      }catch(err){
+         reject(err)
+      }
+  });
+};
 
 module.exports = fn;

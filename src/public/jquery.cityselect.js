@@ -22,7 +22,8 @@ required:必选项
 				validator: false,
 				validatorForm:$("#config-form"),
 				validatorName:"ProjectCityName",
-               value:[{index:0,name:"北京市"}]
+                value:[{index:0,name:"北京市"}],//指定默认区域
+				code:"11"//指定默认区域编码
 			}
 			var opt = $.extend({},defaults, options);
 			var division={
@@ -33,7 +34,7 @@ required:必选项
 				divisiontitle:".cndzk-entrance-division-box-title",
 				divisioncontent:".cndzk-entrance-division-box-content div",
 				url:"/public/json/street.json",
-				api:"http://58.213.48.24:3004/api/cheerio",
+				api:"http://127.0.0.1:3004/api/cheerio",
 				govUrl:"http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2018/",
 				value:null,
 				current_json:null,
@@ -62,20 +63,29 @@ required:必选项
 					this.event();
 				},
 				setServer:function(code,callback){
-					var str1=code.substr(0,2);
-					var str2=code.substr(2,2);
-					var url=division.govUrl+str1+"/"+str2+"/"+code+".html";
+					var url="https://passer-by.com/data_location/town/"+code+".json";
 					division.divisioncontent.append("加载中……");
-					$.ajax({
-						type: "POST",
-						dataType: "json",
-						url: division.api,
-						data: { url: url, selecter:".towntr td:last-child"}}).done(function(citydata){
-							division.divisioncontent.empty();
-							callback(citydata);
-						}).fail(function(err){
-							 console.log(err);
-						});;
+					$.getJSON(url,function(data){
+						var towndata=[];
+						for (var key in data){
+							towndata.push({"code":key,"name":data[key]})
+						}
+						division.divisioncontent.empty();
+							callback(towndata);
+					});
+					// var str1=code.substr(0,2);
+					// var str2=code.substr(2,2);
+					// var url=division.govUrl+str1+"/"+str2+"/"+code+".html";
+					// $.ajax({
+					// 	type: "POST",
+					// 	dataType: "json",
+					// 	url: division.api,
+					// 	data: { url: url, selecter:".towntr td:last-child"}}).done(function(citydata){
+					// 		division.divisioncontent.empty();
+					// 		callback(citydata);
+					// 	}).fail(function(err){
+					// 		 console.log(err);
+					// 	});;
 				},
 				setValue:function(){
 					this.current_array=opt.value;
@@ -130,7 +140,8 @@ required:必选项
 				initTag:function(json){
 					this.current_json=json;
 					$.each(json,function(n,item){
-						var name=item.name.replace("办事处","");
+						//var name=item.name.replace("办事处","");//cheerio街道接口
+						var name=item.name;//在线街道接口
 						var li='<li class="cndzk-entrance-division-box-content-tag ">'+name+'</li>';
 						division.divisioncontent.append(li);
 					});
@@ -140,7 +151,8 @@ required:必选项
 				UpTag:function(json){
 					this.current_json=json;
 					$.each(json,function(n,item){
-						var name=item.name.replace("办事处","");
+						//var name=item.name.replace("办事处","");//cheerio街道接口
+						var name=item.name;//在线街道接口
 						var li='<li class="cndzk-entrance-division-box-content-tag ">'+name+'</li>';
 						division.divisioncontent.append(li);
 					});
@@ -201,7 +213,8 @@ required:必选项
 						 var start=code.substr(0,1);
 						 division.value=[];
 						 $.each(division.current_array,function(n,item){
-							var name=item.json[item.index].name.replace("办事处","");
+							//var name=item.json[item.index].name.replace("办事处","");
+							var name=item.json[item.index].name;
 							var children=item.json[item.index].children;
 							division.value.push({index:item.index,name:name})
 							var headerName='<span><span class="cndzk-entrance-division-header-click-input-name ">'+name+'</span>';
