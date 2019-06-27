@@ -118,7 +118,7 @@
                  $.ajax({
                         type: "POST",
                         dataType: "json",
-                        url: this.api,
+                        url: this.api1,
                         data: { url: url, selecter:selecter}
                     }).done(function(data){
                          console.log(data);
@@ -166,14 +166,14 @@
                    $.ajax({
                         type: "POST",
                         dataType: "json",
-                        url: this.api,
+                        url: this.api1,
                         data: { url: url, selecter:selecter}
                     }).done(callback).fail(error);
             },
             Province: function (callback) {
                 this.scrape(this.host,this.selecter[0],function(data){
                     json=data;
-                    ptotal=data.length;
+                    ptotal=Object.getOwnPropertyNames(data).length;
                     $("#showdetail .detail .ptotal").text(ptotal);
                     callback(data);
                 });

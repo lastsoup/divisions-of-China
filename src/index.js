@@ -1,6 +1,6 @@
 /*webpack入口文件*/
 import Vue from 'vue';
-import index from './components/index.vue';
+import index from './components/index1.vue';
 import area from './components/city.vue';
 var myVue = new Vue({
     el:"#firstVue",
