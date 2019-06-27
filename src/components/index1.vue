@@ -41,7 +41,7 @@
 
 </template>
 <script>
-    var json=[],errojson=[];
+    var object;
     var pcount=0,ccount=0,scount=0;
     var ptotal=0,ctotal=0,stotal=0,ttotal=0,vtotal=0;
     import gatdata from '../public/json/gatdata';
@@ -57,15 +57,8 @@
         },
         methods:{
             save:function(){
-                var newjson= [].concat(json);
-                $.each(this.gatdata,function(){
-                    newjson.push(this);
-                })
-                // newjson.push({'code':"71","name":"台湾省"});
-                // newjson.push({'code':"81","name":"香港特别行政区"});
-                // newjson.push({'code':"82","name":"澳门特别行政区"});
-                console.log(newjson);
-                console.log(JSON.stringify(newjson));
+                console.log(object);
+                console.log(JSON.stringify(object));
                 alert("打开浏览器控制台复制数据！文件内替换（办事处）");
             },
             output:function(){
@@ -133,8 +126,7 @@
             },
             all:function(){
                 var level=$("#level").get(0).selectedIndex;
-                   json=[];
-                   errojson=[];
+                   object=null;
                    pcount=ccount=scount=0;
                    ptotal=ctotal=stotal=ttotal=vtotal=0;
                 this.host=$("#host").val();
@@ -172,7 +164,7 @@
             },
             Province: function (callback) {
                 this.scrape(this.host,this.selecter[0],function(data){
-                    json=data;
+                    object=data;
                     ptotal=Object.getOwnPropertyNames(data).length;
                     $("#showdetail .detail .ptotal").text(ptotal);
                     callback(data);
@@ -182,20 +174,19 @@
                 var dom=this;
                 var selecter=this.selecter;
                 dom.Province(function(pdata){
-                     $.each(pdata,function(n,item){
-                        var url=dom.host+item.code+".html";
+                     $.each(pdata,function(code,name){
+                        var url=dom.host+code+".html";
                         dom.scrape(url,selecter[1],function(cdata){
+                            var l=Object.getOwnPropertyNames(cdata).length;
+                            var o={n:name,c:cdata};
+                            object[code]=o;
                             pcount=pcount+1;
-                            item["children"]=cdata;
-                            json[n]=item;
-                            ctotal=ctotal+cdata.length;
+                            ctotal=ctotal+l;
                             $("#showdetail .detail .pcount").text(pcount);
                             $("#showdetail .detail .ctotal").text(ctotal);
-                            callback(cdata,n,item);
+                            callback(cdata,code);
                         },function(err){
-                            errojson.push({level:1,n:n,item:item});
-                            var errorstr='<p>地级错误:'+item.name+' &nbsp;错误类型:'+err.responseText+'</p>';
-                            $("#showerror").append(errorstr);
+
                         });
                     });
                 });
@@ -203,20 +194,21 @@
             Area:function(callback){
                 var dom=this;
                 var selecter=this.selecter;
-                dom.City(function(cdata,n,citem){
-                     $.each(cdata,function(m,item){
-                         var url=dom.host+citem.code+"/"+item.code+".html";
+                dom.City(function(cdata,pcode){
+                     $.each(cdata,function(code,name){
+                         var str1=code.substr(0,2);
+                         var url=dom.host+str1+"/"+code+".html";
                          dom.scrape(url,selecter[2],function(sdata){
+                              var l=Object.getOwnPropertyNames(sdata).length;
+                              var o={n:name,c:sdata};
+                              object[pcode]["c"][code]=o;
                               ccount=ccount+1;
-                              json[n].children[m]["children"]=sdata;
-                              stotal=stotal+sdata.length;
+                              stotal=stotal+l;
                               $("#showdetail .detail .ccount").text(ccount);
                               $("#showdetail .detail .stotal").text(stotal);
-                              callback(sdata,n,m,item);
+                              callback(sdata,pcode,code);
                          },function(err){
-                              errojson.push({level:2,n:n,m:m,item:item});
-                              var errorstr='<p>县级错误:'+item.name+' &nbsp;错误类型:'+err.responseText+'</p>';
-                              $("#showerror").append(errorstr);
+ 
                          });
                      })
                 });
@@ -224,27 +216,25 @@
             Street:function(){
                 var dom=this;
                 var selecter=this.selecter;
-                dom.Area(function(sdata,n,m,sitem){
-                    $.each(sdata,function(i,item){
-                        var str1=sitem.code.substr(0,2);
-                        var str2=sitem.code.substr(-2);
-                        var url=dom.host+str1+"/"+str2+"/"+item.code+".html";
+                dom.Area(function(sdata,pcode,ccode){
+                    $.each(sdata,function(code,name){
+                        var str1=code.substr(0,2);
+                        var str2=code.substr(2,2);
+                        var url=dom.host+str1+"/"+str2+"/"+code+".html";
                         dom.scrape(url,selecter[3],function(tdata){
-                            scount=scount+1
-                            json[n].children[m].children[i]["children"]=tdata;
+                            //var l=Object.getOwnPropertyNames(tdata).length;
+                            scount=scount+1;
+                            var o={n:name,c:sdata};
+                            object[pcode]["c"][ccode]["c"][code]=o;
                             $("#showdetail .detail .scount").text(scount);
                         },function(err){
-                            errojson.push({level:3,n:n,m:m,i,i,item:item});
-                            var errorstr='<p>乡级错误:'+item.name+' &nbsp;错误类型:'+err.responseText+'</p>';
-                            $("#showerror").append(errorstr);
+
                         });
                     });
                 });
             },
             Error:function(){
-                $.each(errojson,function(i,item){
-
-                });
+              
             }
         }
     }
