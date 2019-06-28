@@ -1,6 +1,6 @@
 <template>
 <div id="main">
-			<h2 class="top_title">基于jQuery+JSON的省市联动效果</h2>
+			<!-- <h2 class="top_title">基于jQuery+JSON的省市联动效果</h2>
 			<div class="demo">
 				<h3>直接调用</h3>
 				<p>二级联动，默认选项为：请选择</p>
@@ -53,16 +53,26 @@
 					$("#city_5").citySelect({prov:"湖南省", city:"长沙市", dist:"岳麓区"}); 
 					$("#city_6").citySelect({prov:"湖南省", city:"长沙市", dist:"岳麓区",town:"岳麓街道"});
 				</pre>
-			</div>
+			</div> -->
 				<h2 class="top_title">仿淘宝四级联动</h2>
 				<pre>
 					$.division();
 				</pre>
 				<div class="cndzk-entrance-division suspend" style="width:500px;">
-				<div class="cndzk-entrance-division-header"><span class="cndzk-entrance-division-header-label"><div class="next-form-item-label"><label required="">地址信息:</label></div></span><div class="cndzk-entrance-division-header-click"><span class="cndzk-entrance-division-header-click-input"><p class="placeholder" data-spm-anchor-id="0.0.0.i0.650e175cHMvmAz">请选择省/市/区/街道</p></span><span class="cndzk-entrance-division-header-click-icon"></span></div></div>
-		        <div class="cndzk-entrance-division-box" style="display:none;"><ul class="cndzk-entrance-division-box-title"><li class="cndzk-entrance-division-box-title-level active" style="width: 25%;">省</li><li class="cndzk-entrance-division-box-title-level " style="width: 25%;">市</li><li class="cndzk-entrance-division-box-title-level " style="width: 25%;">区</li><li class="cndzk-entrance-division-box-title-level " style="width: 25%;">街道</li></ul><ul class="cndzk-entrance-division-box-content"><div></div></ul></div>
+					<div class="cndzk-entrance-division-header">
+						<span class="cndzk-entrance-division-header-label"><div class="next-form-item-label"><label required="">地址信息:</label></div></span>
+						<div class="cndzk-entrance-division-header-click">
+							<span class="cndzk-entrance-division-header-click-input">
+								<p class="placeholder">请选择省/市/区/街道</p>
+							</span>
+							<span class="cndzk-entrance-division-header-click-icon"></span>
+						</div>
+					</div>
+		           <div class="cndzk-entrance-division-box" style="display:none;">
+					   <ul class="cndzk-entrance-division-box-title"><li class="cndzk-entrance-division-box-title-level active" style="width: 25%;">省</li><li class="cndzk-entrance-division-box-title-level " style="width: 25%;">市</li><li class="cndzk-entrance-division-box-title-level " style="width: 25%;">区</li><li class="cndzk-entrance-division-box-title-level " style="width: 25%;">街道</li></ul>
+					   <ul class="cndzk-entrance-division-box-content"><div></div></ul>
+					</div>
 				</div>
-				<div style="height:100px;margin:100px 0; "></div>
 		</div>
 </template>
 
@@ -70,7 +80,7 @@
  export default {
         data () {
             return {
-                api:"/public/json/city.json"
+                api:"/public/json/city1.json"
             }
         },
         methods:{
@@ -78,44 +88,44 @@
         },
          mounted:function(){
 			   $.division({url:this.api});
-               $("#city_1").citySelect({
-                    url:this.api,
-					nodata:"none",
-					required:false
-				}); 
-				$("#city_2").citySelect({
-					url:this.api,
-					prov:"北京市",
-					nodata:"none"
-				});
+            //    $("#city_1").citySelect({
+            //         url:this.api,
+			// 		nodata:"none",
+			// 		required:false
+			// 	}); 
+			// 	$("#city_2").citySelect({
+			// 		url:this.api,
+			// 		prov:"北京市",
+			// 		nodata:"none"
+			// 	});
 
-				$("#city_3").citySelect({
-					url:this.api,
-					prov:"江苏省",
-					nodata:"none"
-				});
+			// 	$("#city_3").citySelect({
+			// 		url:this.api,
+			// 		prov:"江苏省",
+			// 		nodata:"none"
+			// 	});
 				
-				$("#city_4").citySelect({
-					 url:this.api,
-					prov:"湖南省", 
-					city:"长沙市"
-				});
-				$("#city_5").citySelect({
-					 url:this.api,
-					prov:"湖南省", 
-					city:"长沙市",
-					dist:"岳麓区",
-					nodata:"none"
-				}); 
+			// 	$("#city_4").citySelect({
+			// 		 url:this.api,
+			// 		prov:"湖南省", 
+			// 		city:"长沙市"
+			// 	});
+			// 	$("#city_5").citySelect({
+			// 		 url:this.api,
+			// 		prov:"湖南省", 
+			// 		city:"长沙市",
+			// 		dist:"岳麓区",
+			// 		nodata:"none"
+			// 	}); 
 
-				$("#city_6").citySelect({
-					 url:this.api,
-					prov:"湖南省", 
-					city:"长沙市",
-					dist:"岳麓区",
-					town:"岳麓街道",
-					nodata:"none"
-				}); 
+			// 	$("#city_6").citySelect({
+			// 		 url:this.api,
+			// 		prov:"湖南省", 
+			// 		city:"长沙市",
+			// 		dist:"岳麓区",
+			// 		town:"岳麓街道",
+			// 		nodata:"none"
+			// 	}); 
          }
     }
 </script>

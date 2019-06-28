@@ -44,7 +44,7 @@
     var object;
     var pcount=0,ccount=0,scount=0;
     var ptotal=0,ctotal=0,stotal=0,ttotal=0,vtotal=0;
-    import gatdata from '../public/json/gatdata';
+    //import gatdata from '../public/json/gatdata';
     export default {
         data () {
             return {
@@ -80,6 +80,8 @@
                     case 4:
                     {
                         index=2;
+                        if(code==4419||code==4420||code==4604) //特殊处理三个没有区直接到街道的
+                        index=3;
                         var str1=code.substr(0,2);
                         var url=this.host+str1+"/"+code+".html";
                         break;
@@ -98,7 +100,10 @@
                         var str1=code.substr(0,2);
                         var str2=code.substr(2,2);
                         var str3=code.substr(4,2);
-                        var url=this.host+str1+"/"+str2+"/"+str3+"/"+code+".html";
+                        if(code.indexOf(4419)>-1||code.indexOf(4420)>-1||code.indexOf(4604)>-1)
+                         var url=this.host+str1+"/"+str2+"/"+code+".html";
+                        else
+                         var url=this.host+str1+"/"+str2+"/"+str3+"/"+code+".html";
                         break;
                     }
                     default:
