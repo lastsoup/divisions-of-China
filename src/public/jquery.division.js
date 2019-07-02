@@ -21,7 +21,6 @@ division：仿淘宝四级联动
 <!--验证控件[ OPTIONAL ]-->
 <link href="/js/plugins/bootstrap-validator/bootstrapValidator.css" rel="stylesheet">
 <script src="/js/plugins/bootstrap-validator/bootstrapValidator.min.js"></script>
-
 ------------------------------ */
 (function($){
 	$.division=function(options){
@@ -29,7 +28,6 @@ division：仿淘宝四级联动
 				validator: false,
 				validatorForm:$("#config-form"),
 				validatorName:"ProjectCityName",
-                value:[{index:0,name:"北京市"}],//指定默认区域
 				code:"11"//指定默认区域编码
 			}
 			var opt = $.extend({},defaults, options);
@@ -286,3 +284,5 @@ division：仿淘宝四级联动
 				return division;
 	}
 })(jQuery);
+
+

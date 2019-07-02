@@ -1,7 +1,7 @@
 <template>
-  <div id="divisions">
+  <div id="divisions" style="margin:10px 0;">
       <h2 class="top_title"><i class="iconfont">&#xe601;</i>基于cheerio抓取统计局官网最新行政划分数据</h2>
-      <p>地址：<input id="host" value="http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2018/" /></p>
+      <p>官网地址：<input style="width:500px;" id="host" value="http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2018/" /></p>
       选择
       <select id="level">
         <option value ="0">省级</option>
@@ -11,10 +11,8 @@
         <!-- <option value="4">村级</option> -->
       </select>
       <button @click="all">开始抓取数据</button>
-      <button @click="save">保存数据</button>
-      <button @click="erro">错误处理</button>
-       <input id="code" value=""  autocomplete="off" />
-      <button @click="output">行政编号输出数据</button>
+      <button @click="save">输出数据</button>
+    
       <span style="color:red;">建议:最多一次性获取到三级数据（乡级和村级数据可通过行政编号请求获取）</span>
      <div id="showdetail">
          <p class="detail">数据获取情况：地级<span class="ptotal">0</span>/<span class="pcount">0</span>条
@@ -25,30 +23,25 @@
          乡级<span class="stotal">0</span>/<span class="scount">0</span>条
          </p>
      </div>
-      错误详情：
-      <div id="showerror" style="color:red;font-size: 13px;font-style: italic;border: solid 1px #758697;
-    min-height: 100px;">
-     </div>
+      <p><input id="code" value=""  autocomplete="off" /> <button @click="output">行政编号输出数据</button></p>
+    <br/>
     <pre>
-     $.ajax({
-        type: "POST",
-        dataType: "json",
-        url:"/api/json",
-        data: { url: "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2018/", selecter:".provincetr td"}
-     }).done(callback).fail(error);;
-	</pre>
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url:"/api/json",
+            data: { url: "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2018/", selecter:".provincetr td"}
+        }).done(callback).fail(error);
+    </pre>
 </div>
-
 </template>
 <script>
     var object;
     var pcount=0,ccount=0,scount=0;
     var ptotal=0,ctotal=0,stotal=0,ttotal=0,vtotal=0;
-    //import gatdata from '../public/json/gatdata';
     export default {
         data () {
             return {
-                gatdata:gatdata.data,
                 api:"/api/cheerio",
                 api1:"/api/json",
                 host:"http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2018/",

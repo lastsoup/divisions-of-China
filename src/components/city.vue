@@ -54,7 +54,7 @@
 					$("#city_6").citySelect({prov:"湖南省", city:"长沙市", dist:"岳麓区",town:"岳麓街道"});
 				</pre>
 			</div> -->
-				<h2 class="top_title">仿淘宝四级联动</h2>
+				<h2 class="top_title"><i class="iconfont">&#xe601;</i>仿淘宝四级联动</h2>
 				<pre>
 					$.division();
 				</pre>
@@ -80,7 +80,7 @@
  export default {
         data () {
             return {
-                api:"/public/json/city1.json"
+                api:"/public/json/city.json"
             }
         },
         methods:{
