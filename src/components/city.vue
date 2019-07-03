@@ -87,7 +87,8 @@
           
         },
          mounted:function(){
-			   $.division({url:this.api});
+			   //$.division({url:this.api});
+			   $.divisionpicker();
             //    $("#city_1").citySelect({
             //         url:this.api,
 			// 		nodata:"none",

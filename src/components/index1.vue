@@ -116,7 +116,7 @@
                          console.log(JSON.stringify(data));
                          alert("打开浏览器控制台复制数据！");
                     }).fail(function(erro){
-
+                        alert(erro.statusText);
                     });
             },
             erro:function(){
