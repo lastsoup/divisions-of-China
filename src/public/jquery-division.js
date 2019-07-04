@@ -31,7 +31,7 @@
 		validator: false,//是否开启验证
 		validatorForm:$("#config-form"),//验证表单对象
 		validatorName:"ProjectCityName",//验证属性
-		code:"4419",//指定默认区域编码
+		code:"44",//指定默认区域编码
 		url:"/public/json/city.json",
 		data:null,
 		display:"请选择省/市/区/街道",
@@ -84,10 +84,10 @@
 			var headerSymbol='<span class="cndzk-entrance-division-header-click-input-symbol">'+(isSymbol?"/":"")+'</span></span>';
 			$(".cndzk-entrance-division-header-click-input").append(headerName+headerSymbol);
 		},
-        getValueWithCode:function(code,data){
-			this.code=code;
-			this.index=0;
-			this.currentItems=data;
+        getValueWithCode:function(){
+			var code=this.code;
+			var data=this.data;
+			$(".cndzk-entrance-division-header-click-input").empty();
 			switch(code.length){
 				case 0:
 				{
@@ -125,6 +125,29 @@
 				 case 9:
 				{
 					this.index=3;
+					var code1=code.substr(0,2);
+                    var code2=code.substr(0,4);
+					var code3=code.substr(0,6);
+					var province=data[code1];
+					var city=province.c[code2];
+					var county=city.c[code3];
+					this.addNameAndSymbol(province.n,true);
+					this.addNameAndSymbol(city.n,true);
+					if(code.indexOf(4419)>-1||code.indexOf(4420)>-1||code.indexOf(4604)>-1){
+						this.code=code2;
+						var town=city.c;
+						this.currentItems=town;
+						this.addNameAndSymbol(town[code],false);
+					}else{
+						this.addNameAndSymbol(county,true);
+						//第四级显示三级的code
+						this.code=code3;
+						var that=this;
+						this.getTownData(code3,function(data){
+							var town=data[code];
+							that.addNameAndSymbol(town,false);
+						});
+					}
 					break;
 				}
 				default:
@@ -138,7 +161,9 @@
 			var that=this;
 			this.code=that.options.code;
 			//设置默认值
-			this.getValueWithCode(that.code,that.data);
+			this.currentItems=that.data;
+			this.index=0;
+			this.getValueWithCode();
 			that.content.empty();
 		},
 		getServerData:function(url){
@@ -183,89 +208,37 @@
 		},
 		getDataWithCode:function(code,callback){
 			//根据code获取数据，需要搭建服务api
-			var index=0;
-			var url="http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2018/";
-			var host=url;
-			var selecter=[".provincetr td",".citytr td:last-child",".countytr td:last-child",".towntr td:last-child",".villagetr td:last-child"];
-			switch(code.length){
-				case 0:
-				{
-					index=0;
-					break;
-				}
-				case 2:
-				{
-					index=1;
-					url=host+code+".html";
-					break;
-				}
-				case 4:
-				{
-					index=2;
-					if(code==4419||code==4420||code==4604) //特殊处理三个没有区直接到街道的
-					index=3;
-					var str1=code.substr(0,2);
-					var url=host+str1+"/"+code+".html";
-					break;
-				}
-				case 6:
-				{
-					index=3;
-					var str1=code.substr(0,2);
-					var str2=code.substr(2,2);
-					var url=host+str1+"/"+str2+"/"+code+".html";
-					break;
-				}
-				case 9:
-				{
-					index=4;
-					var str1=code.substr(0,2);
-					var str2=code.substr(2,2);
-					var str3=code.substr(4,2);
-					if(code.indexOf(4419)>-1||code.indexOf(4420)>-1||code.indexOf(4604)>-1)
-					var url=host+str1+"/"+str2+"/"+code+".html";
-					else
-					var url=host+str1+"/"+str2+"/"+str3+"/"+code+".html";
-					break;
-				}
-				default:
-				{
-					alert("编码填写错误");
-					return;
-				}
-			}
-			var selecter=selecter[index];
 			$.ajax({
 				type: "POST",
 				dataType: "json",
-				url: "/api/json",
-				data: { url: url, selecter:selecter}
+				url: "/api/code",
+				data: { code: code}
 			}).done(callback).fail(function(erro){
 				alert(erro.statusText);
 			});
 		},
 		getTownData:function(code,callback){
-			//var url="https://passer-by.com/data_location/town/"+code+".json";
-			//$.getJSON(url,callback);
-			//特殊处理几个数据从本地加载
+			var url="https://passer-by.com/data_location/town/"+code+".json";
+			$.getJSON(url,callback);
+			//this.getDataWithCode(code,callback);
 		},
 		SpecialCodeIndex:function(tag){
 			var that=this;
-			var active=that.title.find("li.active").index();
+			var itemindex=that.title.find("li.active").index();
 			var code=that.code;
 			if(code==4419||code==4420||code==4604){
-				that.index = tag=="next"?(active+1):3;
+				that.index = 3;
 			 } 
 			else{
-				that.index = tag=="next"?(active+1):that.index;
+				that.index = tag=="next"?(itemindex+1):that.index;
 			}
 			that.content.empty();
 			that.content.append("加载中……");
 			that.box.show();
 			that.setActive();
 			//第三级(几个特殊区域)的下一级数据从服务端获取
-			if(code.length==6||code==4419||code==4420||code==4604){
-				that.getDataWithCode(code,function(data){
+			if(code.length>=6){
+				that.getTownData(code,function(data){
 					that.currentItems=data;
 					that.initItems();
 				});
@@ -278,21 +251,32 @@
 				that.initItems();
 		    }
 		},
+	    itemActive:function(index){
+			this.content.find("li").removeClass("active");
+			this.content.find('li:eq('+index+')').addClass("active");
+		},
 		itemClick:function(){
 			var that=this;
 			that.content.find("li").click(function(){	
 			   var active=that.title.find("li.active").index();
-			   if(active==3){
-				//第四级不继续执行，隐藏区域选择
-				that.box.hide();
-				return;
-			   }
-			   //三级以下数据处理
+			   var text=$(this).text();
 			   var index=$(this).index();
-			   var keys = Object.keys(that.currentItems);
-			   var code=keys[index];
-			   that.code=code;//设置当前code
+			   //设置当前选中code
+			   that.code=$(this).attr("code");
+			   if(active==3){
+					//选中
+				    that.itemActive(index);
+					//显示文字
+					that.getValueWithCode();
+					//第四级不继续执行，隐藏区域选择
+					that.box.hide();
+					return;
+			   }
+			   //var keys = Object.keys(that.currentItems);
+			   //三级以下数据处理
 			   that.SpecialCodeIndex("next");
+			   //显示文字
+			   that.getValueWithCode();
 			});
 		},
 		initItems:function(data){
@@ -301,9 +285,11 @@
 			that.content.empty();
 			for (var key in items){
 				var name=items[key].n?items[key].n:items[key];
-				var li='<li class="cndzk-entrance-division-box-content-tag ">'+name+'</li>';
+				var li='<li class="cndzk-entrance-division-box-content-tag" code="'+key+'">'+name+'</li>';
 				that.content.append(li);
 			}
+			//设置选中状态
+			//注册点击事件
 			that.itemClick();
 		},
 		Validator:function(){
@@ -347,6 +333,5 @@
 	$.fn.divisionpicker = function(option) {
 
 	};
-
 
 })(window.jQuery);
