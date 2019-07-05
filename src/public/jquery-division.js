@@ -134,14 +134,12 @@
 					this.addNameAndSymbol(province.n,true);
 					this.addNameAndSymbol(city.n,true);
 					if(code.indexOf(4419)>-1||code.indexOf(4420)>-1||code.indexOf(4604)>-1){
-						this.code=code2;
 						var town=city.c;
 						this.currentItems=town;
 						this.addNameAndSymbol(town[code],false);
 					}else{
 						this.addNameAndSymbol(county,true);
 						//第四级显示三级的code
-						this.code=code3;
 						var that=this;
 						this.getTownData(code3,function(data){
 							var town=data[code];
@@ -178,11 +176,61 @@
 		},
 		TabClick:function(el){
 			var index=$(el).index();
-			alert(1);
-			this.initItems();
-			//设置点击级别为选中状态
-			this.title.find("li").removeClass("active");
-			this.title.find('li:eq('+index+')').addClass("active");
+			var itemindex=-1;
+			var that=this;
+			var code=that.code;
+			var data=that.data;
+			//设置标题点击级别为选中状态
+			that.title.find("li").removeClass("active");
+			that.title.find('li:eq('+index+')').addClass("active");
+			//设置当前标题的实现数据
+			if(index==3){
+				var code1=code.substr(0,2);
+				var code2=code.substr(0,4);
+				var code3=code.substr(0,6);
+				var code4=code.substr(0,9);
+				var province=data[code1];
+				var city=province.c[code2];
+				if(code.indexOf(4419)>-1||code.indexOf(4420)>-1||code.indexOf(4604)>-1){
+					var town=city.c;
+					that.currentItems=town;
+					that.initItems();
+					that.itemActive(itemindex);//设置显示数据选中状态
+				}else{
+					this.getTownData(code3,function(data){
+						that.currentItems=data;
+						that.initItems();
+						var keys = Object.keys(that.currentItems);
+					    itemindex=keys.indexOf(code4);
+						that.itemActive(itemindex);//设置显示数据选中状态
+					});
+				}
+			}else{
+				if(index==0){
+					var code1=code.substr(0,2);
+					that.currentItems=data;
+					var keys = Object.keys(that.currentItems);
+					itemindex=keys.indexOf(code1);
+				}
+				if(index==1){
+					var code1=code.substr(0,2);
+					var code2=code.substr(0,4);
+					that.currentItems=data[code1].c;
+					var keys = Object.keys(that.currentItems);
+					itemindex=keys.indexOf(code2);
+				}
+				if(index==2){
+					var code1=code.substr(0,2);
+					var code2=code.substr(0,4);
+					var code3=code.substr(0,6);
+					that.currentItems=data[code1].c[code2].c;
+					var keys = Object.keys(that.currentItems);
+					itemindex=keys.indexOf(code3);
+				}
+				that.initItems();
+				that.itemActive(itemindex);//设置显示数据选中状态
+			}
+		
 		},
 		setActive:function(){
 			var that=this;
@@ -259,23 +307,18 @@
 			var that=this;
 			that.content.find("li").click(function(){	
 			   var active=that.title.find("li.active").index();
-			   var text=$(this).text();
-			   var index=$(this).index();
 			   //设置当前选中code
 			   that.code=$(this).attr("code");
 			   if(active==3){
-					//选中
-				    that.itemActive(index);
-					//显示文字
+					//文本框显示文字
 					that.getValueWithCode();
 					//第四级不继续执行，隐藏区域选择
 					that.box.hide();
 					return;
 			   }
-			   //var keys = Object.keys(that.currentItems);
 			   //三级以下数据处理
 			   that.SpecialCodeIndex("next");
-			   //显示文字
+			   //文本框显示文字
 			   that.getValueWithCode();
 			});
 		},
@@ -288,7 +331,8 @@
 				var li='<li class="cndzk-entrance-division-box-content-tag" code="'+key+'">'+name+'</li>';
 				that.content.append(li);
 			}
-			//设置选中状态
+			//滚动条到顶部
+			$(".cndzk-entrance-division-box-content").scrollTop(0);
 			//注册点击事件
 			that.itemClick();
 		},

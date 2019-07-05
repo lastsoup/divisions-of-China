@@ -56,7 +56,7 @@
 			</div> -->
 				<h2 class="top_title"><i class="iconfont">&#xe601;</i>仿淘宝四级联动</h2>
 				<pre>
-					$.division();
+					$.divisionpicker();
 				</pre>
 				<div class="cndzk-entrance-division suspend" style="width:500px;">
 					<div class="cndzk-entrance-division-header">
