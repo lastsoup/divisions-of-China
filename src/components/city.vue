@@ -57,8 +57,10 @@
 				<h2 class="top_title"><i class="iconfont">&#xe601;</i>仿淘宝四级联动</h2>
 				<pre>
 					$.divisionpicker();
+					$("#taobao").divisionpicker();
 				</pre>
-				<div class="cndzk-entrance-division suspend" style="width:500px;">
+				<div id="taobao"></div>
+				<!-- <div class="cndzk-entrance-division suspend" style="width:500px;">
 					<div class="cndzk-entrance-division-header">
 						<span class="cndzk-entrance-division-header-label"><div class="next-form-item-label"><label required="">地址信息:</label></div></span>
 						<div class="cndzk-entrance-division-header-click">
@@ -72,7 +74,7 @@
 					   <ul class="cndzk-entrance-division-box-title"><li class="cndzk-entrance-division-box-title-level active" style="width: 25%;">省</li><li class="cndzk-entrance-division-box-title-level " style="width: 25%;">市</li><li class="cndzk-entrance-division-box-title-level " style="width: 25%;">区</li><li class="cndzk-entrance-division-box-title-level " style="width: 25%;">街道</li></ul>
 					   <ul class="cndzk-entrance-division-box-content"><div></div></ul>
 					</div>
-				</div>
+				</div> -->
 		</div>
 </template>
 
@@ -87,8 +89,8 @@
           
         },
          mounted:function(){
-			   //$.division({url:this.api});
-			   $.divisionpicker();
+			   //$.divisionpicker();
+			   $("#taobao").divisionpicker();
             //    $("#city_1").citySelect({
             //         url:this.api,
 			// 		nodata:"none",
