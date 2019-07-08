@@ -40,7 +40,7 @@
 		validator: false,//是否开启验证
 		validatorForm:$("#config-form"),//验证表单对象
 		validatorName:"ProjectCityName",//验证属性
-		code:"440103004",//指定默认区域编码
+		code:"4419",//指定默认区域编码
 		url:"http://127.0.0.1:3004/public/json/city1.json",
 		townUrl:"http://127.0.0.1:3004/api/code",
 		data:null,
@@ -95,7 +95,6 @@
 				$(".cndzk-entrance-division-header-click-input").append("<span></span>");
 				return;
 			}
-			$(".cndzk-entrance-division-header-click-input .placeholder").empty();
 			var headerName='<span><span class="cndzk-entrance-division-header-click-input-name ">'+name+'</span>';
 			var headerSymbol='<span class="cndzk-entrance-division-header-click-input-symbol">'+(isSymbol?"/":"")+'</span></span>';
 			$(".cndzk-entrance-division-header-click-input").append(headerName+headerSymbol);
@@ -104,9 +103,10 @@
 			var code=this.code;
 			var data=this.data;
 			var length=code.length;
-			if(length==0)
-			  return;
-			$(".cndzk-entrance-division-header-click-input").empty();
+			if(length==0){
+				return;
+			}	
+			$(".cndzk-entrance-division-header-click-input").empty();	
 			switch(length){
 				case 2:
 				{
@@ -119,11 +119,11 @@
 					this.index=2;
 					var code1=code.substr(0,2);
 					var province=data[code1];
-					var city=province.c[code].c;
+					var city=province.c[code];
 					this.addNameAndSymbol(province.n,true);
 					this.addNameAndSymbol(province.c[code].n,true);
 					//获取特殊数据
-					if(city.length==0){
+					if(city.c.length==0){
 						this.index=3;
 						this.addNameAndSymbol(null);
 					}else{
@@ -154,6 +154,7 @@
 					var county=city.c[code3];
 					this.addNameAndSymbol(province.n,true);
 					this.addNameAndSymbol(city.n,true);
+					//获取特殊数据
 					if(city.c.length==0){
 						this.addNameAndSymbol(null);
 						this.addNameAndSymbol(spdata[code2][code],false);
@@ -191,10 +192,14 @@
 			});
 		},
 		headerClick:function(){
-			this.SpecialCodeIndex("up");
+			var lenli=this.content.find("li").length;
+			if(lenli==0){
+				this.SpecialCodeIndex("up");
+			}else{
+				this.box.show();
+			}
 		},
-		TabClick:function(el){
-			var index=$(el).index();
+		TabClick:function(index){
 			var that=this;
 			var code=that.code;
 			var data=that.data;
@@ -214,6 +219,7 @@
 				var city=province.c[code2];
 				if(city.c.length==0){
 					that.currentItems=spdata[code2];//获取特殊数据
+					that.unbind=2;
 					that.initItems();
 					that.itemActive(that.currentItems,code4);//设置显示数据选中状态
 				}else{
@@ -248,7 +254,7 @@
 			}
 		
 		},
-		setActive:function(unbind){
+		setActive:function(){
 			var that=this;
 			var index=that.index;//获取级别
 			var code=that.code;
@@ -258,7 +264,7 @@
 			//绑定当前级前级别tab点击事件
 			that.title.find("li").off("click");
 			that.title.find("li:lt("+(index+1)+")").on("click",function(){
-				that.TabClick(this);
+				that.TabClick($(this).index());
 			});
 			if(that.unbind){
 				that.title.find("li:eq("+that.unbind+")").off("click");
@@ -311,8 +317,8 @@
 					that.initItems();
 				}
 			}else{
-				that.initItems();
-				that.itemActive(that.currentItems,mycode);//设置显示数据选中状态
+				//下拉展开
+				that.TabClick(that.index);
 			}
 			that.setActive();//设置表头选中状态
 		},
