@@ -1,8 +1,9 @@
 /** ------------------------------
-	介绍：division仿淘宝四级联动
+	介绍：divisionpicker仿淘宝四级联动
 	日期：2019-3-6
 	作者：陈清元
 	初始化html：
+	$.divisionpicker();
 	<div class="cndzk-entrance-division suspend" style="width:500px;">
 		<div class="cndzk-entrance-division-header">
 			<span class="cndzk-entrance-division-header-label"><div class="next-form-item-label"><label required="">地址信息:</label></div></span>
@@ -18,6 +19,9 @@
 			<ul class="cndzk-entrance-division-box-content"><div></div></ul>
 		</div>
 	</div>
+	或者
+	<div id="taobao"></div>
+	$("#taobao").divisionpicker();
 	支持验证：须添加验证控件
 	<!--验证控件[ OPTIONAL ]-->
 	<link href="/js/plugins/bootstrap-validator/bootstrapValidator.css" rel="stylesheet">
@@ -31,8 +35,9 @@
 		validator: false,//是否开启验证
 		validatorForm:$("#config-form"),//验证表单对象
 		validatorName:"ProjectCityName",//验证属性
-		code:"44",//指定默认区域编码
-		url:"/public/json/city.json",
+		code:"440103",//指定默认区域编码
+		url:"http://127.0.0.1:3004/public/json/city.json",
+		townUrl:"http://127.0.0.1:3004/api/code",
 		data:null,
 		display:"请选择省/市/区/街道",
 		mode:0,//0:对象 1：数组
@@ -74,7 +79,9 @@
 		   //获取数据
 		   if(url)this.getServerData(url);
 		   //验证
-		   if(validator)this.picker.after('<input type="hidden" name="'+validatorName+'" value="'+code+'" />');
+		   if(validator){
+			   this.picker.after('<input type="hidden" name="'+validatorName+'" value="'+code+'" />');
+			}
 		   //事件处理
 		   this.Event();
 		},
@@ -87,12 +94,11 @@
         getValueWithCode:function(){
 			var code=this.code;
 			var data=this.data;
+			var length=code.length;
+			if(length==0)
+			  return;
 			$(".cndzk-entrance-division-header-click-input").empty();
-			switch(code.length){
-				case 0:
-				{
-					break;
-				}
+			switch(length){
 				case 2:
 				{
 					this.index=1;
@@ -162,7 +168,6 @@
 			this.currentItems=that.data;
 			this.index=0;
 			this.getValueWithCode();
-			that.content.empty();
 		},
 		getServerData:function(url){
 			var that=this;
@@ -172,11 +177,14 @@
 			});
 		},
 		headerClick:function(){
-			this.SpecialCodeIndex("up");
+			if(this.index<3){
+			   this.SpecialCodeIndex("up");
+			}else{
+			   this.box.show();
+			}
 		},
 		TabClick:function(el){
 			var index=$(el).index();
-			var itemindex=-1;
 			var that=this;
 			var code=that.code;
 			var data=that.data;
@@ -195,40 +203,36 @@
 					var town=city.c;
 					that.currentItems=town;
 					that.initItems();
-					that.itemActive(itemindex);//设置显示数据选中状态
+					that.itemActive(that.currentItems,code4);//设置显示数据选中状态
 				}else{
 					this.getTownData(code3,function(data){
 						that.currentItems=data;
 						that.initItems();
-						var keys = Object.keys(that.currentItems);
-					    itemindex=keys.indexOf(code4);
-						that.itemActive(itemindex);//设置显示数据选中状态
+						that.itemActive(that.currentItems,code4);//设置显示数据选中状态
 					});
 				}
 			}else{
+				var activecode=code;
 				if(index==0){
 					var code1=code.substr(0,2);
 					that.currentItems=data;
-					var keys = Object.keys(that.currentItems);
-					itemindex=keys.indexOf(code1);
+					activecode=code1;	
 				}
 				if(index==1){
 					var code1=code.substr(0,2);
 					var code2=code.substr(0,4);
 					that.currentItems=data[code1].c;
-					var keys = Object.keys(that.currentItems);
-					itemindex=keys.indexOf(code2);
+					activecode=code2;
 				}
 				if(index==2){
 					var code1=code.substr(0,2);
 					var code2=code.substr(0,4);
 					var code3=code.substr(0,6);
 					that.currentItems=data[code1].c[code2].c;
-					var keys = Object.keys(that.currentItems);
-					itemindex=keys.indexOf(code3);
+					activecode=code3;
 				}
 				that.initItems();
-				that.itemActive(itemindex);//设置显示数据选中状态
+				that.itemActive(that.currentItems,activecode);//设置显示数据选中状态
 			}
 		
 		},
@@ -241,7 +245,7 @@
 			that.title.find('li:eq('+(index)+')').addClass("active");
 			//绑定当前级前级别tab点击事件
 			that.title.find("li").off("click");
-			if(code==4419||code==4420||code==4604){
+			if(code.indexOf(4419)>-1||code.indexOf(4420)>-1||code.indexOf(4604)>-1){
 				that.title.find("li:lt(2)").on("click",function(){
 					that.TabClick(this);
 				});
@@ -259,49 +263,66 @@
 			$.ajax({
 				type: "POST",
 				dataType: "json",
-				url: "/api/code",
+				url:this.options.townUrl,
 				data: { code: code}
 			}).done(callback).fail(function(erro){
 				alert(erro.statusText);
 			});
 		},
 		getTownData:function(code,callback){
-			var url="https://passer-by.com/data_location/town/"+code+".json";
-			$.getJSON(url,callback);
-			//this.getDataWithCode(code,callback);
+			// var url="https://passer-by.com/data_location/town/"+code+".json";
+			// $.getJSON(url,callback);
+			this.getDataWithCode(code,callback);
 		},
 		SpecialCodeIndex:function(tag){
 			var that=this;
 			var itemindex=that.title.find("li.active").index();
-			var code=that.code;
-			if(code==4419||code==4420||code==4604){
+			var code=that.code,mycode=that.code;
+			that.content.empty();
+			that.content.append("加载中……");
+			that.box.show();
+			if(code.indexOf(4419)>-1||code.indexOf(4420)>-1||code.indexOf(4604)>-1){
+				//直接获取二级的下级数据
+				mycode=code.substr(0,4);
 				that.index = 3;
 			 } 
 			else{
 				that.index = tag=="next"?(itemindex+1):that.index;
 			}
-			that.content.empty();
-			that.content.append("加载中……");
-			that.box.show();
-			that.setActive();
-			//第三级(几个特殊区域)的下一级数据从服务端获取
-			if(code.length>=6){
-				that.getTownData(code,function(data){
+			that.setActive();//设置表头选中状态
+			if(that.index==3&&!(code.indexOf(4419)>-1||code.indexOf(4420)>-1||code.indexOf(4604)>-1)){
+				//第三级(除了几个特殊区域)的下一级数据从服务端获取
+				mycode=code.substr(0,6);
+				that.getTownData(mycode,function(data){
 					that.currentItems=data;
 					that.initItems();
+					that.itemActive(that.currentItems,code);//设置显示数据选中状态
 				});
-		    }else{
+			}else{
 				//点击获取下一级数据
 				if(tag=="next"){
-					var data=that.currentItems[code];
+					var data=that.currentItems[mycode];
 					that.currentItems=data.c;
+					that.initItems();
+				}else{
+					that.initItems();
+			        that.itemActive(that.currentItems,code);//设置显示数据选中状态
 				}
-				that.initItems();
-		    }
+				
+			}
 		},
-	    itemActive:function(index){
-			this.content.find("li").removeClass("active");
-			this.content.find('li:eq('+index+')').addClass("active");
+	    itemActive:function(data,code){
+			//设置显示数据选中状态
+			var keys = Object.keys(data);
+			var itemindex=keys.indexOf(code);
+			if(itemindex>=0){
+				this.content.find("li").removeClass("active");
+			    var selectedli=this.content.find('li:eq('+itemindex+')');
+				selectedli.addClass("active");
+				//滚动条滚动到选中位置
+				var pli=$(".cndzk-entrance-division-box-content");
+				pli.scrollTop(selectedli.offset().top-pli.offset().top);
+			}
 		},
 		itemClick:function(){
 			var that=this;
@@ -309,17 +330,30 @@
 			   var active=that.title.find("li.active").index();
 			   //设置当前选中code
 			   that.code=$(this).attr("code");
+			   //添加验证
+			   that.Validator();
+			   //显示文字处理
+			   var text=$(this).text();
+			   var spanNames=$(".cndzk-entrance-division-header-click-input").children("span");
+			   spanNames.each(function(n,i){
+				 if((n+1)>active){
+					$(i).remove();
+				 }
+			   });
+			   var code=that.code;
+			   if(active==3&&(code.indexOf(4419)>-1||code.indexOf(4420)>-1||code.indexOf(4604)>-1)){
+				 $(spanNames[2]).remove();
+			   }
+			   that.addNameAndSymbol(text,active!=3);
 			   if(active==3){
-					//文本框显示文字
-					that.getValueWithCode();
+				    that.content.find("li").removeClass("active");
+					that.content.find('li:eq('+$(this).index()+')').addClass("active");
 					//第四级不继续执行，隐藏区域选择
 					that.box.hide();
 					return;
 			   }
 			   //三级以下数据处理
 			   that.SpecialCodeIndex("next");
-			   //文本框显示文字
-			   that.getValueWithCode();
 			});
 		},
 		initItems:function(data){
@@ -337,14 +371,12 @@
 			that.itemClick();
 		},
 		Validator:function(){
-			var validator=this.options.validator;
-			var validatorForm=this.options.validatorForm;
-			var validatorName=this.options.validatorName;
 			if(validator){ 
+				var validator=this.options.validator;
+				var validatorForm=this.options.validatorForm;
+				var validatorName=this.options.validatorName;
 				var hidden=this.picker.next();
-				var input=$(".cndzk-entrance-division-header-click-input");
-				var text=$(".cndzk-entrance-division-header-click-input p").length==0?input.text():"";
-				hidden.val(text);
+				hidden.val(this.code);
 				validatorForm.data('bootstrapValidator').updateStatus(validatorName, 'NOT_VALIDATED').validateField(validatorName);
 			}
 		},
@@ -370,12 +402,33 @@
 	};
 	//页面须添加控件
 	$.divisionpicker = function(option){
+		if($(".cndzk-entrance-division").length==0){
+	        alert("控件没有添加");
+		}
 		var d=new DivisonPicker(option);
 		d.init();
+		return d;
 	};
+
 	//动态添加控件
 	$.fn.divisionpicker = function(option) {
-
+		var element=`<div class="cndzk-entrance-division suspend">
+		<div class="cndzk-entrance-division-header">
+			<span class="cndzk-entrance-division-header-label"><div class="next-form-item-label"><label required="">地址信息:</label></div></span>
+			<div class="cndzk-entrance-division-header-click">
+				<span class="cndzk-entrance-division-header-click-input">
+					<p class="placeholder">请选择省/市/区/街道</p>
+				</span>
+				<span class="cndzk-entrance-division-header-click-icon"></span>
+			</div>
+		</div>
+	   <div class="cndzk-entrance-division-box" style="display:none;width:600px;">
+		   <ul class="cndzk-entrance-division-box-title"><li class="cndzk-entrance-division-box-title-level active" style="width: 25%;">省</li><li class="cndzk-entrance-division-box-title-level " style="width: 25%;">市</li><li class="cndzk-entrance-division-box-title-level " style="width: 25%;">区</li><li class="cndzk-entrance-division-box-title-level " style="width: 25%;">街道</li></ul>
+		   <ul class="cndzk-entrance-division-box-content"><div></div></ul>
+		</div></div>`;
+		$(this).append(element);
+		var d=new DivisonPicker(option);
+		d.init();
+		return d;
 	};
-
 })(window.jQuery);

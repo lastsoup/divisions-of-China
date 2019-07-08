@@ -188,7 +188,7 @@ color:#4a8cff
 .cndzk-entrance-division-box-content .active {
 color:#1470cc;
 font-weight:700;
-cursor:default
+cursor:pointer;
 }
 .onlyInput .cndzk-entrance-division-header-click {
 width:100%

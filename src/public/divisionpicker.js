@@ -68,7 +68,7 @@
 	 * @param {EventTarget|Element} target Target DOM element
 	 * @returns {boolean} Returns true if the element needs a native click
 	 */
-	division.prototype.needsClick = function(target) {
+	divisionpicker.prototype.needsClick = function(target) {
 
 	};
 

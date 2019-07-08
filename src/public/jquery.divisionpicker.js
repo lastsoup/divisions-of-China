@@ -28,15 +28,20 @@
 	<script src="/js/plugins/bootstrap-validator/bootstrapValidator.min.js"></script>
 ------------------------------ **/
 // (function($, undefined){}(window.jQuery));
+
 (function($) {
 	'use strict';
-
+	var spdata={
+		"4419":{"441900003":"东城街道","441900004":"南城街道","441900005":"万江街道","441900006":"莞城街道","441900101":"石碣镇","441900102":"石龙镇","441900103":"茶山镇","441900104":"石排镇","441900105":"企石镇","441900106":"横沥镇","441900107":"桥头镇","441900108":"谢岗镇","441900109":"东坑镇","441900110":"常平镇","441900111":"寮步镇","441900112":"樟木头镇","441900113":"大朗镇","441900114":"黄江镇","441900115":"清溪镇","441900116":"塘厦镇","441900117":"凤岗镇","441900118":"大岭山镇","441900119":"长安镇","441900121":"虎门镇","441900122":"厚街镇","441900123":"沙田镇","441900124":"道滘镇","441900125":"洪梅镇","441900126":"麻涌镇","441900127":"望牛墩镇","441900128":"中堂镇","441900129":"高埗镇","441900401":"松山湖管委会","441900402":"东莞港","441900403":"东莞生态园"},
+		"4420":{"442000001":"石岐区街道","442000002":"东区街道","442000003":"火炬开发区街道","442000004":"西区街道","442000005":"南区街道","442000006":"五桂山街道","442000100":"小榄镇","442000101":"黄圃镇","442000102":"民众镇","442000103":"东凤镇","442000104":"东升镇","442000105":"古镇镇","442000106":"沙溪镇","442000107":"坦洲镇","442000108":"港口镇","442000109":"三角镇","442000110":"横栏镇","442000111":"南头镇","442000112":"阜沙镇","442000113":"南朗镇","442000114":"三乡镇","442000115":"板芙镇","442000116":"大涌镇","442000117":"神湾镇"},
+		"4604":{"460400100":"那大镇","460400101":"和庆镇","460400102":"南丰镇","460400103":"大成镇","460400104":"雅星镇","460400105":"兰洋镇","460400106":"光村镇","460400107":"木棠镇","460400108":"海头镇","460400109":"峨蔓镇","460400111":"王五镇","460400112":"白马井镇","460400113":"中和镇","460400114":"排浦镇","460400115":"东成镇","460400116":"新州镇","460400499":"洋浦经济开发区","460400500":"华南热作学院"}
+	}
 	var defaults = {
 		validator: false,//是否开启验证
 		validatorForm:$("#config-form"),//验证表单对象
 		validatorName:"ProjectCityName",//验证属性
-		code:"",//指定默认区域编码
-		url:"http://127.0.0.1:3004/public/json/city.json",
+		code:"440103004",//指定默认区域编码
+		url:"http://127.0.0.1:3004/public/json/city1.json",
 		townUrl:"http://127.0.0.1:3004/api/code",
 		data:null,
 		display:"请选择省/市/区/街道",
@@ -86,6 +91,10 @@
 		   this.Event();
 		},
 		addNameAndSymbol:function(name,isSymbol){
+			if(!name){
+				$(".cndzk-entrance-division-header-click-input").append("<span></span>");
+				return;
+			}
 			$(".cndzk-entrance-division-header-click-input .placeholder").empty();
 			var headerName='<span><span class="cndzk-entrance-division-header-click-input-name ">'+name+'</span>';
 			var headerSymbol='<span class="cndzk-entrance-division-header-click-input-symbol">'+(isSymbol?"/":"")+'</span></span>';
@@ -102,7 +111,6 @@
 				case 2:
 				{
 					this.index=1;
-					this.currentItems=data[code].c;
 					this.addNameAndSymbol(data[code].n,true);
 					break;
 				}
@@ -111,9 +119,16 @@
 					this.index=2;
 					var code1=code.substr(0,2);
 					var province=data[code1];
-					this.currentItems=province.c[code].c;
+					var city=province.c[code].c;
 					this.addNameAndSymbol(province.n,true);
 					this.addNameAndSymbol(province.c[code].n,true);
+					//获取特殊数据
+					if(city.length==0){
+						this.index=3;
+						this.addNameAndSymbol(null);
+					}else{
+						this.currentItems=city;
+					}
 					break;
 				}
 				 case 6:
@@ -139,10 +154,9 @@
 					var county=city.c[code3];
 					this.addNameAndSymbol(province.n,true);
 					this.addNameAndSymbol(city.n,true);
-					if(code.indexOf(4419)>-1||code.indexOf(4420)>-1||code.indexOf(4604)>-1){
-						var town=city.c;
-						this.currentItems=town;
-						this.addNameAndSymbol(town[code],false);
+					if(city.c.length==0){
+						this.addNameAndSymbol(null);
+						this.addNameAndSymbol(spdata[code2][code],false);
 					}else{
 						this.addNameAndSymbol(county,true);
 						//第四级显示三级的code
@@ -187,6 +201,9 @@
 			//设置标题点击级别为选中状态
 			that.title.find("li").removeClass("active");
 			that.title.find('li:eq('+index+')').addClass("active");
+			that.content.empty();
+			that.content.append("加载中……");
+			that.unbind=null;
 			//设置当前标题的实现数据
 			if(index==3){
 				var code1=code.substr(0,2);
@@ -195,9 +212,8 @@
 				var code4=code.substr(0,9);
 				var province=data[code1];
 				var city=province.c[code2];
-				if(code.indexOf(4419)>-1||code.indexOf(4420)>-1||code.indexOf(4604)>-1){
-					var town=city.c;
-					that.currentItems=town;
+				if(city.c.length==0){
+					that.currentItems=spdata[code2];//获取特殊数据
 					that.initItems();
 					that.itemActive(that.currentItems,code4);//设置显示数据选中状态
 				}else{
@@ -232,7 +248,7 @@
 			}
 		
 		},
-		setActive:function(){
+		setActive:function(unbind){
 			var that=this;
 			var index=that.index;//获取级别
 			var code=that.code;
@@ -241,17 +257,11 @@
 			that.title.find('li:eq('+(index)+')').addClass("active");
 			//绑定当前级前级别tab点击事件
 			that.title.find("li").off("click");
-			if(code.indexOf(4419)>-1||code.indexOf(4420)>-1||code.indexOf(4604)>-1){
-				that.title.find("li:lt(2)").on("click",function(){
-					that.TabClick(this);
-				});
-				that.title.find("li:eq(3)").on("click",function(){
-					that.TabClick(this);
-				});
-			}else{
-				that.title.find("li:lt("+(index+1)+")").on("click",function(){
-					that.TabClick(this);
-				});
+			that.title.find("li:lt("+(index+1)+")").on("click",function(){
+				that.TabClick(this);
+			});
+			if(that.unbind){
+				that.title.find("li:eq("+that.unbind+")").off("click");
 			}
 		},
 		getDataWithCode:function(code,callback){
@@ -266,46 +276,45 @@
 			});
 		},
 		getTownData:function(code,callback){
-			//var url="https://passer-by.com/data_location/town/"+code+".json";
-			//$.getJSON(url,callback);
+			// var url="https://passer-by.com/data_location/town/"+code+".json";
+			// $.getJSON(url,callback);
 			this.getDataWithCode(code,callback);
 		},
 		SpecialCodeIndex:function(tag){
 			var that=this;
 			var itemindex=that.title.find("li.active").index();
-			var code=that.code,mycode=that.code;
+			var mycode=that.code;
 			that.content.empty();
 			that.content.append("加载中……");
 			that.box.show();
-			if(code.indexOf(4419)>-1||code.indexOf(4420)>-1||code.indexOf(4604)>-1){
-				//直接获取二级的下级数据
-				mycode=code.substr(0,4);
-				that.index = 3;
-			 } 
-			else{
-				that.index = tag=="next"?(itemindex+1):that.index;
-			}
-			that.setActive();//设置表头选中状态
-			if(that.index==3&&!(code.indexOf(4419)>-1||code.indexOf(4420)>-1||code.indexOf(4604)>-1)){
-				//第三级(除了几个特殊区域)的下一级数据从服务端获取
-				mycode=code.substr(0,6);
-				that.getTownData(mycode,function(data){
-					that.currentItems=data;
-					that.initItems();
-					that.itemActive(that.currentItems,code);//设置显示数据选中状态
-				});
-			}else{
-				//点击获取下一级数据
-				if(tag=="next"){
-					var data=that.currentItems[mycode];
-					that.currentItems=data.c;
+			//最后一级从服务器获取
+			//获取数据：next下一级数据、up当前数据
+			if(tag=="next"){
+				that.unbind=null;
+				that.index = itemindex+1;
+				var data=that.currentItems[mycode];
+				that.currentItems=data.c;
+			    if(typeof(that.currentItems)=="undefined"){
+					//从服务器端获取数据
+					that.getTownData(mycode.substr(0,6),function(data){
+						that.currentItems=data;
+						that.initItems();
+					});
+				}else if(that.currentItems.length==0){
+					//无第三级数据特殊处理
+					this.addNameAndSymbol(null);//第三级置空
+					that.unbind=2;//解除第三级绑定
+					that.index = 3;//第三级跳到第四级
+					that.currentItems=spdata[mycode];//获取特殊数据
 					that.initItems();
 				}else{
 					that.initItems();
-			        that.itemActive(that.currentItems,code);//设置显示数据选中状态
 				}
-				
+			}else{
+				that.initItems();
+				that.itemActive(that.currentItems,mycode);//设置显示数据选中状态
 			}
+			that.setActive();//设置表头选中状态
 		},
 	    itemActive:function(data,code){
 			//设置显示数据选中状态
@@ -332,22 +341,22 @@
 			   var text=$(this).text();
 			   var spanNames=$(".cndzk-entrance-division-header-click-input").children("span");
 			   spanNames.each(function(n,i){
-				 if((n+1)>active){
-					$(i).remove();
-				 }
+				   if((n+1)>active){
+					   $(i).remove();
+					}
 			   });
-			   var code=that.code;
-			   if(active==3&&(code.indexOf(4419)>-1||code.indexOf(4420)>-1||code.indexOf(4604)>-1)){
-				 $(spanNames[2]).remove();
-			   }
-			   that.addNameAndSymbol(text,active!=3);
 			   if(active==3){
+				    that.addNameAndSymbol(text,false);
+				    that.content.find("li").removeClass("active");
+					that.content.find('li:eq('+$(this).index()+')').addClass("active");
 					//第四级不继续执行，隐藏区域选择
 					that.box.hide();
-					return;
+			   }else{
+				    //三级以下数据处理
+					that.addNameAndSymbol(text,true);
+					that.SpecialCodeIndex("next");
 			   }
-			   //三级以下数据处理
-			   that.SpecialCodeIndex("next");
+			  
 			});
 		},
 		initItems:function(data){

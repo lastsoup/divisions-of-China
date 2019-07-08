@@ -82,7 +82,7 @@
  export default {
         data () {
             return {
-                api:"/public/json/city.json"
+                api:"/public/json/city1.json"
             }
         },
         methods:{
