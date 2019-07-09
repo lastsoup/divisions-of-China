@@ -42,41 +42,7 @@
          mounted:function(){
 			   //$.divisionpicker();
 			   $("#taobao").divisionpicker();
-			   //$("#city_1").cityselect(); 
 			   $("#city_1").cityselect();
-			// 	$("#city_2").citySelect({
-			// 		url:this.api,
-			// 		prov:"北京市",
-			// 		nodata:"none"
-			// 	});
-
-			// 	$("#city_3").citySelect({
-			// 		url:this.api,
-			// 		prov:"江苏省",
-			// 		nodata:"none"
-			// 	});
-				
-			// 	$("#city_4").citySelect({
-			// 		 url:this.api,
-			// 		prov:"湖南省", 
-			// 		city:"长沙市"
-			// 	});
-			// 	$("#city_5").citySelect({
-			// 		 url:this.api,
-			// 		prov:"湖南省", 
-			// 		city:"长沙市",
-			// 		dist:"岳麓区",
-			// 		nodata:"none"
-			// 	}); 
-
-			// 	$("#city_6").citySelect({
-			// 		 url:this.api,
-			// 		prov:"湖南省", 
-			// 		city:"长沙市",
-			// 		dist:"岳麓区",
-			// 		town:"岳麓街道",
-			// 		nodata:"none"
-			// 	}); 
          }
     }
 </script>

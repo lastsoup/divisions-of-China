@@ -70,6 +70,7 @@
 		this.box=$(this.component.box);
 		this.title=$(this.component.title);
 		this.content=$(this.component.content);
+		this.init();
 	};
 	
 	//版本号
@@ -81,13 +82,13 @@
 		init:function(){
 			var url=this.options.url;
 			var code=this.options.code;
-			var validator=this.options.validator;
-			var validatorName=this.options.validatorName;
 		   //获取数据
 		   if(url)this.getServerData(url);
 		   //验证
+		   var validator=this.options.validator;
 		   if(validator){
-			   this.picker.after('<input type="hidden" name="'+validatorName+'" value="'+code+'" />');
+			   var validatorName=this.options.validatorName;
+			   this.picker.append('<input type="hidden" name="'+validatorName+'" value="'+code+'" />');
 			}
 		   //事件处理
 		   this.Event();
@@ -383,11 +384,11 @@
 			that.itemClick();
 		},
 		Validator:function(){
+			var validator=this.options.validator;
 			if(validator){ 
-				var validator=this.options.validator;
 				var validatorForm=this.options.validatorForm;
 				var validatorName=this.options.validatorName;
-				var hidden=this.picker.next();
+				var hidden=this.picker.find("[name='"+validatorName+"']");
 				hidden.val(this.code);
 				validatorForm.data('bootstrapValidator').updateStatus(validatorName, 'NOT_VALIDATED').validateField(validatorName);
 			}
@@ -419,7 +420,6 @@
 	        alert("控件没有添加");
 		}
 		var d=new DivisonPicker(option);
-		d.init();
 		return d;
 	};
 
@@ -441,7 +441,6 @@
 		</div></div>`;
 		$(this).append(element);
 		var d=new DivisonPicker(option);
-		d.init();
 		return d;
 	};
 

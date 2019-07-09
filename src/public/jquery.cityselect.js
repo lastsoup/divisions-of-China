@@ -22,16 +22,19 @@ http://www.jq22.com/daima
 		city:null,//默认值，可不写
 		dist:null,//默认值，可不写
 		required:false,//false:请选择 true：默认第一项
-		nodata:false//是否隐藏未选择的
+		nodata:false,//是否隐藏未选择的
+		validator: false,//是否开启验证
+		validatorForm:$("#config-form"),//验证表单对象
+		validatorName:"ProjectCityName"//验证属性
 	};
 
 	var cityselect=function(el,options){
 		this.options = $.extend({},defaults, options);
-		var box_obj=$(el);
-		this.prov_obj=box_obj.find(".prov");
-		this.city_obj=box_obj.find(".city");
-		this.dist_obj=box_obj.find(".dist");
-		this.town_obj=box_obj.find(".town");
+		this.box_obj=$(el);
+		this.prov_obj=this.box_obj.find(".prov");
+		this.city_obj=this.box_obj.find(".city");
+		this.dist_obj=this.box_obj.find(".dist");
+		this.town_obj=this.box_obj.find(".town");
 		this.select_prehtml=(this.options.required) ? "" : "<option value=''>----请选择----</option>";
 		var url=this.options.url;
 		var data=this.options.data;
@@ -45,6 +48,13 @@ http://www.jq22.com/daima
 				that.init();
 			});
 		}
+		 //验证
+		 var validator=this.options.validator;
+		 var prov=this.options.prov?this.options.prov:"";
+		 if(validator){
+			var validatorName=this.options.validatorName;
+			el.append('<input type="hidden" name="'+validatorName+'" value="'+prov+'" />');
+		 }
 		this.Events();
 	};
 
@@ -65,7 +75,21 @@ http://www.jq22.com/daima
 				   this.prov_obj.val(prov);
 				else
 				   this.prov_obj.find("option:first").attr("selected",true);
-				this.cityStart();
+				//添加市数据
+				if(this.city_obj.length>0){
+					this.cityStart();
+					var city=this.options.city;
+					if(city)this.city_obj.val(city);
+					//添加区数据
+					if(this.dist_obj.length>0){
+						this.distStart();
+						var dist=this.options.dist;
+						if(dist)this.dist_obj.val(dist);
+					}
+				}
+				
+				
+
 		   }
 		},
 		provData:function(json,el){
@@ -102,6 +126,7 @@ http://www.jq22.com/daima
 				   curr_obj.hide();
 			}else{
 				curr_obj.append("<option value=''>----请选择----</option>");
+				curr_obj.attr("disabled",true);
 			}
 		},
 		cityStart:function(){
@@ -114,11 +139,23 @@ http://www.jq22.com/daima
 		townStart:function(){
 
 		},
+		Validator:function(){
+			var validator=this.options.validator;
+			if(validator){ 
+				var validatorForm=this.options.validatorForm;
+				var validatorName=this.options.validatorName;
+				var text=this.prov_obj.val();
+				var hidden=this.box_obj.find("[name='"+validatorName+"']");
+				hidden.val(text);
+				validatorForm.data('bootstrapValidator').updateStatus(validatorName, 'NOT_VALIDATED').validateField(validatorName);
+			}
+		},
 		Events:function(){
 			var that=this;
 			// 选择省份时发生事件
 			that.prov_obj.bind("change",function(){
 				that.cityStart();
+				that.Validator();
 			});
 
 			// 选择市级时发生事件
