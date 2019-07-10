@@ -395,20 +395,22 @@
 		},
 		Event:function(e){
 			var that=this;
-			that.picker.click(function(event){
+			$(".cndzk-entrance-division-header-click").click(function(event){
 				var e = event;
 				if (e && e.stopPropagation) {
 					e.stopPropagation();
 				} else if (window.event) {
 					window.event.cancelBubble = true;
 				}
-				if($(".cndzk-entrance-division-header-click-input").find(e.target).length>0
-				||$(e.target).hasClass("cndzk-entrance-division-header-click-input"))
-				   that.headerClick();
+				that.headerClick();
 			});
 
-			$(document).click(function () {
-				that.box.hide();
+			$(document).mouseup(function (e) {
+				var e = e || event;
+				var target = e.target || srcElement;
+				var isSon=that.box.has(target).length==0;
+				if(isSon)
+				  that.box.hide();
 			}); 
 		}
           
